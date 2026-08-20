@@ -31,7 +31,11 @@ while ($true) {
       if ($update.message.text -ne '/start') { continue }
       Send-QuestPhoto $update.message.chat.id
       $body = @{ chat_id = $update.message.chat.id; text = $welcomeText }
-      if ($WebAppUrl) { $body.reply_markup = @{ inline_keyboard = @(@(@{ text = $buttonText; web_app = @{ url = $WebAppUrl } })) } }
+      if ($WebAppUrl) {
+        $button = @{ text = $buttonText; web_app = @{ url = $WebAppUrl } }
+        $row = ,$button
+        $body.reply_markup = @{ inline_keyboard = ,$row }
+      }
       Invoke-Telegram 'sendMessage' $body | Out-Null
       Write-Host "Sent quest invitation to chat $($update.message.chat.id)."
     }
