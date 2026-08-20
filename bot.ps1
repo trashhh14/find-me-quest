@@ -13,11 +13,14 @@ function Invoke-Telegram([string]$Method, [hashtable]$Body) {
   Invoke-RestMethod -Method Post -Uri "$apiBase/$Method" -ContentType 'application/json; charset=utf-8' -Body $utf8Body
 }
 
-function Send-QuestPhoto([Int64]$ChatId) {
-  Invoke-RestMethod -Method Post -Uri "$apiBase/sendPhoto" -Form @{
+function Send-QuestPhoto([Int64]$ChatId, [hashtable]$ReplyMarkup) {
+  $form = @{
     chat_id = "$ChatId"
     photo = Get-Item -LiteralPath $imagePath
-  } | Out-Null
+    caption = $welcomeText
+  }
+  if ($ReplyMarkup) { $form.reply_markup = $ReplyMarkup | ConvertTo-Json -Compress -Depth 8 }
+  Invoke-RestMethod -Method Post -Uri "$apiBase/sendPhoto" -Form $form | Out-Null
 }
 
 Invoke-Telegram 'deleteWebhook' @{ drop_pending_updates = $false } | Out-Null
@@ -29,14 +32,13 @@ while ($true) {
     foreach ($update in $updates) {
       $offset = $update.update_id + 1
       if ($update.message.text -ne '/start') { continue }
-      Send-QuestPhoto $update.message.chat.id
-      $body = @{ chat_id = $update.message.chat.id; text = $welcomeText }
+      $replyMarkup = $null
       if ($WebAppUrl) {
         $button = @{ text = $buttonText; web_app = @{ url = $WebAppUrl } }
         $row = ,$button
-        $body.reply_markup = @{ inline_keyboard = ,$row }
+        $replyMarkup = @{ inline_keyboard = ,$row }
       }
-      Invoke-Telegram 'sendMessage' $body | Out-Null
+      Send-QuestPhoto $update.message.chat.id $replyMarkup
       Write-Host "Sent quest invitation to chat $($update.message.chat.id)."
     }
   } catch {
