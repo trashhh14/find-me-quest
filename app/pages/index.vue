@@ -42,7 +42,7 @@ onMounted(() => { attempts.value = Number(localStorage.getItem('questAttempts') 
 </script>
 
 <template>
-  <main class="app-shell" :class="{ 'intro-active': screen === 'intro' }">
+  <main class="app-shell" :class="[`stage-${screen}`, { 'intro-active': screen === 'intro' }]">
     <div class="glow glow-one" /><div class="glow glow-two" />
     <header class="topbar"><button type="button" class="round-button" aria-label="Начать заново" @click="resetQuest">↺</button><div class="progress-wrap"><span>Глава 01</span><div class="progress"><i :style="{ width: progress }" /></div></div><div class="round-button sparkle" aria-hidden="true">✦</div></header>
     <section v-if="screen === 'intro'" class="screen active"><div class="hero-orbit"><div class="hero-card"><span>✈</span></div></div><p class="eyebrow">личный квест</p><h1>Найди<br><em>меня.</em></h1><p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p><div class="choice-list"><button type="button" class="choice primary" @click="choose('yes')"><span>Да, готова</span><b>→</b></button><button type="button" class="choice" @click="choose('no')"><span>Нет, не хочу тебя искать</span><b>→</b></button><button type="button" class="choice" @click="choose('info')"><span>Я ничего не поняла</span><b>→</b></button></div></section>
