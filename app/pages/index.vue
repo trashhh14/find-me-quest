@@ -97,7 +97,7 @@ onMounted(() => {
     main.offClick(startQuest)
     if (value === 'intro') {
       main.setText('Да, готова')
-      main.setParams?.({ color: '#6d9a86', text_color: '#fff8f4', is_active: true, is_visible: true })
+      main.setParams?.({ color: '#e27aa3', text_color: '#fff7fb', is_active: true, is_visible: true })
       main.show()
       main.onClick(startQuest)
     } else {
@@ -120,158 +120,144 @@ onMounted(() => {
     </header>
 
     <section v-if="screen === 'intro'" class="screen">
-      <div class="hero" aria-hidden="true">
-        <i class="blob blob-tr" />
-        <i class="blob blob-l" />
-        <svg class="arch-svg" viewBox="0 0 320 150">
-          <path id="title-arch" d="M18 128 Q160 8 302 128" fill="none" />
-          <text fill="currentColor" font-size="30" font-weight="800" letter-spacing="3" font-family="Syne, Outfit, sans-serif">
-            <textPath href="#title-arch" xlink:href="#title-arch" startOffset="50%" text-anchor="middle">НАЙДИ МЕНЯ</textPath>
-          </text>
-        </svg>
-      </div>
-      <p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p>
-      <div class="ghost-links">
-        <button type="button" class="ghost-link" @click="choose('info')">Что это</button>
-        <button type="button" class="ghost-link" @click="choose('no')">Не хочу</button>
-      </div>
-      <div class="orange-panel">
-        <p class="panel-title">Готова?</p>
-        <p class="panel-copy">Первый след уже ждёт. Три попытки — и точка на карте.</p>
-        <button type="button" class="choice primary" @click="startQuest"><span>Да, готова</span></button>
+      <p class="kicker">личный квест</p>
+      <h1 class="title">Найди меня.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p>
+        <div class="choices">
+          <button type="button" class="btn-ghost btn" @click="choose('no')">Нет, не хочу тебя искать</button>
+          <button type="button" class="btn-ghost btn" @click="choose('info')">Я ничего не поняла</button>
+        </div>
+      </article>
+      <div class="btn-row">
+        <button type="button" class="btn" @click="startQuest">Да, готова</button>
       </div>
     </section>
 
     <section v-else-if="screen === 'question'" class="screen">
-      <div class="question-head">
-        <p class="eyebrow">этап 01 · точка на карте</p>
-        <span class="attempts"><strong>{{ attempts }}</strong> {{ attemptsLabel.replace(/^\d+\s/, '') }}</span>
-      </div>
-      <div class="hero hero-mini" aria-hidden="true">
-        <i class="blob blob-tr" />
-        <i class="blob blob-l" />
-      </div>
-      <article class="glass-card question-card">
-        <h2>Где я?</h2>
-        <p>Чтобы искать было проще, нужно понять, где искать. Тебе нужно угадать, где я.</p>
-        <label class="answer-field">
+      <p class="kicker">этап 01 · точка на карте</p>
+      <h1 class="title">Где я?</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <p class="attempts">{{ attemptsLabel }}</p>
+      <article class="card">
+        <p>Чтобы искать было проще, нужно понять, где искать. Напиши свой вариант.</p>
+        <label class="field">
           <input v-model="answer" type="text" placeholder="Угадай, где я..." autocomplete="off" @focus="scrollField" @keyup.enter="checkAnswer">
           <button type="button" aria-label="Проверить ответ" @click="checkAnswer">→</button>
         </label>
-        <p class="answer-note" role="status">{{ answerNote }}</p>
+        <p class="note" role="status">{{ answerNote }}</p>
       </article>
-      <div class="quest-mark"><span /><span /><span /></div>
     </section>
 
     <section v-else-if="screen === 'clue'" class="screen">
-      <p class="eyebrow pad-eyebrow">этап 01 пройден</p>
-      <h2 class="success-title">Ты на верном<br>пути.</h2>
-      <article class="glass-card clue-card">
-        <p class="clue-label">следующая координата</p>
+      <p class="kicker">этап 01 пройден</p>
+      <h1 class="title">Ты на верном пути.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p class="meta">следующая координата</p>
         <p class="cipher">V · I · I</p>
         <p class="cipher-sub">пятьсот + одиннадцать</p>
-        <div class="divider" />
-        <p class="clue-text">Там, где письма ждут своих историй, ищи дверцу с этим номером. Она знает, куда идти дальше.</p>
-        <button type="button" class="hint-button" @click="hintOpen = true">Подсказка</button>
-        <div class="found-input">
-          <label for="foundInput">Нашла письма с билетами?</label>
-          <div class="answer-field">
-            <input id="foundInput" v-model="foundInput" type="text" inputmode="numeric" placeholder="Введи код с билетов" autocomplete="off" @focus="scrollField" @keyup.enter="submitFound">
-            <button type="button" aria-label="Отправить" @click="submitFound">→</button>
-          </div>
-          <p class="found-note" role="status">{{ foundNote }}</p>
-        </div>
+        <p>Там, где письма ждут своих историй, ищи дверцу с этим номером. Она знает, куда идти дальше.</p>
+        <label class="field">
+          <input id="foundInput" v-model="foundInput" type="text" inputmode="numeric" placeholder="Код с билетов" autocomplete="off" @focus="scrollField" @keyup.enter="submitFound">
+          <button type="button" aria-label="Отправить" @click="submitFound">→</button>
+        </label>
+        <p class="note" role="status">{{ foundNote }}</p>
       </article>
-      <p class="soft-foot">Не торопись. Самое интересное — в деталях.</p>
+      <div class="btn-row">
+        <button type="button" class="btn-ghost btn" @click="hintOpen = true">Подсказка</button>
+      </div>
     </section>
 
     <section v-else-if="screen === 'letter'" class="screen">
-      <p class="eyebrow pad-eyebrow">письмо № 02</p>
-      <h2 class="success-title">Маршрут<br>начинается.</h2>
-      <article class="glass-card letter-card">
-        <p class="letter-greeting">Привет, мышка!</p>
+      <p class="kicker">письмо № 02</p>
+      <h1 class="title">Маршрут начинается.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p class="card-title">Привет, мышка!</p>
         <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу сказать: много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
         <p>Ружик в надёжных руках, можешь о нём не беспокоиться. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
         <p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p>
-        <div class="letter-sign">Твой маршрут</div>
+        <p class="sign">Твой маршрут</p>
       </article>
-      <div class="orange-panel cta-panel">
-        <button type="button" class="choice primary" @click="setScreen('arrival')">Я доехала</button>
+      <div class="btn-row">
+        <button type="button" class="btn" @click="setScreen('arrival')">Я доехала</button>
       </div>
     </section>
 
     <section v-else-if="screen === 'arrival'" class="screen">
-      <p class="eyebrow pad-eyebrow">добро пожаловать в сочи</p>
-      <h2 class="success-title">Твоя новая<br>точка.</h2>
-      <article class="glass-card hotel-card">
-        <p class="hotel-label">отель</p>
-        <h3>8Авеню by Provence</h3>
+      <p class="kicker">добро пожаловать в сочи</p>
+      <h1 class="title">Твоя новая точка.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p class="meta">отель</p>
+        <p class="hotel-name">8Авеню by Provence</p>
         <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>
-        <a class="hotel-link" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель <b>↗</b></a>
-        <div class="divider" />
-        <p class="hotel-text">Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
+        <p>Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
       </article>
-      <div class="orange-panel cta-panel">
-        <button type="button" class="choice primary" @click="hotelCodeOpen = true">Я в отеле</button>
+      <div class="btn-row">
+        <a class="btn-ghost btn" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель</a>
+        <button type="button" class="btn" @click="hotelCodeOpen = true">Я в отеле</button>
       </div>
     </section>
 
     <section v-else class="screen">
-      <p class="eyebrow pad-eyebrow">секретная точка</p>
-      <h2 class="success-title">Тише.<br>Сейф рядом.</h2>
-      <article class="glass-card safe-card">
-        <p class="safe-lead">Ищи маленькую стальную дверцу там, где вещи остаются в безопасности до утра. Она умеет хранить не только ценности, но и подсказки.</p>
-        <div class="safe-divider" />
-        <p class="safe-label">кодовая головоломка</p>
-        <p class="safe-riddle">Вспомни номер дверцы с письмами и цифры, которые были обведены на билетах.</p>
-        <ol class="safe-steps">
+      <p class="kicker">секретная точка</p>
+      <h1 class="title">Тише. Сейф рядом.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p>Ищи маленькую стальную дверцу там, где вещи остаются в безопасности до утра. Она умеет хранить не только ценности, но и подсказки.</p>
+        <p class="meta">кодовая головоломка</p>
+        <p>Вспомни номер дверцы с письмами и цифры, которые были обведены на билетах.</p>
+        <ol class="list">
           <li>Напиши оба числа подряд.</li>
           <li>Убери все повторяющиеся цифры, но первую встречу каждой оставь.</li>
           <li>Не меняй порядок.</li>
         </ol>
-        <label class="answer-field safe-input">
-          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="5" placeholder="Введи код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
+        <label class="field">
+          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="5" placeholder="Код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
           <button type="button" aria-label="Открыть сейф" @click="checkSafeCode">→</button>
         </label>
-        <p class="found-note" role="status">{{ safeCodeNote }}</p>
+        <p class="note" role="status">{{ safeCodeNote }}</p>
       </article>
     </section>
 
     <div class="modal" :class="{ show: hintOpen }" :aria-hidden="!hintOpen">
       <div class="modal-backdrop" @click="hintOpen = false" />
-      <article class="modal-card">
+      <article class="card modal-card">
         <button type="button" class="modal-close" aria-label="Закрыть" @click="hintOpen = false">×</button>
-        <p class="eyebrow">подсказка</p>
-        <h2>Ищи эту дверцу</h2>
+        <p class="kicker">подсказка</p>
+        <p class="card-title">Ищи эту дверцу</p>
         <img src="/assets/mailbox-511.png" alt="Почтовый ящик с номером 511">
         <p>Номер должен быть совсем рядом. Ты справишься.</p>
       </article>
     </div>
 
-    <div class="modal rescue-modal" :class="{ show: rescueOpen }" :aria-hidden="!rescueOpen">
+    <div class="modal" :class="{ show: rescueOpen }" :aria-hidden="!rescueOpen">
       <div class="modal-backdrop" />
-      <article class="modal-card rescue-card">
-        <div class="rescue-icon">✦</div>
-        <p class="eyebrow">секретный запас</p>
-        <h2>Ну ладно,<br><em>не нервничай.</em></h2>
+      <article class="card modal-card">
+        <p class="kicker">секретный запас</p>
+        <p class="card-title">Ну ладно, не нервничай.</p>
         <p>Вот тебе ещё <strong>100 попыток</strong>. На этот раз точно получится.</p>
-        <button type="button" class="rescue-button" @click="addAttempts">Забрать попытки <b>→</b></button>
+        <div class="btn-row">
+          <button type="button" class="btn" @click="addAttempts">Забрать попытки</button>
+        </div>
       </article>
     </div>
 
-    <div class="modal hotel-code-modal" :class="{ show: hotelCodeOpen }" :aria-hidden="!hotelCodeOpen">
+    <div class="modal" :class="{ show: hotelCodeOpen }" :aria-hidden="!hotelCodeOpen">
       <div class="modal-backdrop" @click="hotelCodeOpen = false" />
-      <article class="modal-card hotel-code-card">
+      <article class="card modal-card">
         <button type="button" class="modal-close" aria-label="Закрыть" @click="hotelCodeOpen = false">×</button>
-        <div class="rescue-icon">⌘</div>
-        <p class="eyebrow">в отеле</p>
-        <h2>Введи<br><em>кодовое слово.</em></h2>
+        <p class="kicker">в отеле</p>
+        <p class="card-title">Введи кодовое слово.</p>
         <p>Оно приведёт тебя к следующей подсказке.</p>
-        <label class="answer-field">
+        <label class="field">
           <input v-model="hotelCode" type="text" placeholder="Кодовое слово" autocomplete="off" @focus="scrollField" @keyup.enter="checkHotelCode">
           <button type="button" aria-label="Проверить код" @click="checkHotelCode">→</button>
         </label>
-        <p class="found-note" role="status">{{ hotelCodeNote }}</p>
+        <p class="note" role="status">{{ hotelCodeNote }}</p>
       </article>
     </div>
 

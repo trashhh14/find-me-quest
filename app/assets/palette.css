@@ -1,32 +1,30 @@
-/* Pink field, soft snow panels, sage accent. */
+/* Princess gloss: rose, pearl, champagne gold. */
 :root {
-  --ink: #3b2a28;
-  --body: #6a534e;
-  --muted: #b07a80;
-  --page: #e8c2b8;
-  --page-deep: #ddb3aa;
-  --paper: #fff8f4;
-  --paper-2: #f3e4dd;
-  --peach: #e8c2b8;
-  --peach-hot: #d9ada4;
-  --snow: #fff8f4;
-  --sage: #6d9a86;
-  --sage-deep: #4e7c68;
+  --ink: #4a2c3a;
+  --body: #7a5364;
+  --muted: #c48aa0;
+  --pink: #f4a7c3;
+  --pink-deep: #e27aa3;
+  --pink-soft: #ffd4e4;
+  --snow: #fff7fb;
+  --gold: #d4b06a;
+  --gold-soft: #ead6a4;
+  --page: #f4a7c3;
+  --peach: #f4a7c3;
+  --peach-hot: #ffd4e4;
+  --paper: #fff7fb;
+  --sage: #e27aa3;
+  --sage-deep: #c45d86;
   --orange: var(--snow);
-  --orange-deep: var(--sage-deep);
-  --butter: var(--sage);
+  --orange-deep: var(--pink-deep);
+  --butter: var(--gold);
   --cocoa: var(--ink);
   --cream: var(--snow);
   --white: var(--ink);
-  --line: rgba(59, 42, 40, 0.12);
-  --shadow: 0 18px 40px rgba(59, 42, 40, 0.1);
+  --line: rgba(226, 122, 163, 0.22);
+  --shadow: 0 18px 40px rgba(194, 93, 134, 0.22);
   --font-ui: Outfit, system-ui, sans-serif;
-  --font-display: Syne, Outfit, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
   --font-input: Fraunces, "Times New Roman", serif;
-  --rose: var(--sage);
-  --rose-deep: var(--sage-deep);
-  --blush: var(--peach-hot);
-  --gold: var(--sage);
-  --gold-deep: var(--sage-deep);
-  --seal: var(--sage-deep);
+  --radius: 28px;
 }
