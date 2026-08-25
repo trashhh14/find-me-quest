@@ -15,9 +15,22 @@ const toast = ref('')
 const hintOpen = ref(false)
 const rescueOpen = ref(false)
 let toastTimer: ReturnType<typeof setTimeout> | undefined
-const progress = computed(() => ({ intro: '8%', question: '48%', clue: '100%' })[screen.value])
+const progress = computed(() => ({
+  intro: '12%',
+  question: '28%',
+  clue: '46%',
+  letter: '64%',
+  arrival: '82%',
+  next: '100%',
+}[screen.value]))
 const attemptsLabel = computed(() => `${attempts.value} ${attempts.value === 1 ? 'попытка' : attempts.value < 5 ? 'попытки' : 'попыток'}`)
-function setScreen(next: Screen) { screen.value = next; localStorage.setItem('questScreen', next); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+function setScreen(next: Screen) {
+  screen.value = next
+  localStorage.setItem('questScreen', next)
+  requestAnimationFrame(() => {
+    document.querySelector('.screen')?.scrollTo({ top: 0 })
+  })
+}
 function showToast(message: string) { toast.value = message; if (toastTimer) clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.value = '', 2600) }
 function choose(choice: 'yes' | 'no' | 'info') { if (choice === 'yes') return setScreen('question'); showToast(choice === 'no' ? 'Я всё равно буду ждать, когда передумаешь ✦' : 'Это маленькое путешествие по подсказкам. Начнём?') }
 function checkAnswer() {
@@ -41,34 +54,174 @@ async function submitFound() {
 function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
 function checkSafeCode() { if (safeCode.value.trim() !== '51234') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
 function resetQuest() { ;['questScreen', 'questAttempts', 'questSolved', 'questMailboxFound', 'questTicketsUnlocked'].forEach(key => localStorage.removeItem(key)); attempts.value = 3; answer.value = ''; answerNote.value = ''; foundInput.value = ''; foundNote.value = ''; hotelCode.value = ''; hotelCodeNote.value = ''; safeCode.value = ''; safeCodeNote.value = ''; setScreen('intro') }
+function scrollField(event: Event) { const el = event.target as HTMLElement; window.setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 280) }
 onMounted(() => { attempts.value = Number(localStorage.getItem('questAttempts') || 3); const saved = localStorage.getItem('questScreen') as Screen | null; if (localStorage.getItem('questTicketsUnlocked') === 'true' && ['letter', 'arrival', 'next'].includes(saved || '')) screen.value = saved!; else if (localStorage.getItem('questTicketsUnlocked') === 'true') screen.value = 'letter'; else if (localStorage.getItem('questSolved') === 'true') screen.value = 'clue'; else if (saved === 'question') screen.value = 'question'; foundInput.value = localStorage.getItem('questMailboxFound') || '' })
 </script>
 
 <template>
-  <main class="app-shell" :class="[`stage-${screen}`, { 'intro-active': screen === 'intro' }]">
-    <div class="glow glow-one" /><div class="glow glow-two" />
-    <header class="topbar"><button type="button" class="round-button" aria-label="Начать заново" @click="resetQuest">↺</button><div class="progress-wrap"><span>Глава 01</span><div class="progress"><i :style="{ width: progress }" /></div></div><div class="round-button sparkle" aria-hidden="true">✦</div></header>
-    <section v-if="screen === 'intro'" class="screen active"><div class="hero-orbit"><div class="hero-card"><span>✈</span></div></div><p class="eyebrow">личный квест</p><h1>Найди<br><em>меня.</em></h1><p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p><div class="choice-list"><button type="button" class="choice primary" @click="choose('yes')"><span>Да, готова</span><b>→</b></button><button type="button" class="choice" @click="choose('no')"><span>Нет, не хочу тебя искать</span><b>→</b></button><button type="button" class="choice" @click="choose('info')"><span>Я ничего не поняла</span><b>→</b></button></div></section>
-    <section v-else-if="screen === 'question'" class="screen active"><div class="question-head"><p class="eyebrow">этап 01 · точка на карте</p><span class="attempts"><strong>{{ attempts }}</strong> {{ attemptsLabel.replace(/^\d+\s/, '') }}</span></div><article class="glass-card question-card"><div class="map-pin">⌖</div><h2>Где я?</h2><p>Чтобы искать было проще, нужно понять, где искать. Тебе нужно угадать, где я.</p><label class="answer-field"><input v-model="answer" type="text" placeholder="Угадай, где я..." autocomplete="off" @keyup.enter="checkAnswer"><button type="button" aria-label="Проверить ответ" @click="checkAnswer">→</button></label><p class="answer-note" role="status">{{ answerNote }}</p></article><div class="quest-mark"><span /><span /><span /></div></section>
-    <section v-else-if="screen === 'clue'" class="screen active"><div class="success-burst">✦</div><p class="eyebrow">этап 01 пройден</p><h2 class="success-title">Ты на верном<br><em>пути.</em></h2><article class="glass-card clue-card"><p class="clue-label">следующая координата</p><p class="cipher">V · I · I</p><p class="cipher-sub">пятьсот + одиннадцать</p><div class="divider" /><p class="clue-text">Там, где письма ждут своих историй, ищи дверцу с этим номером. Она знает, куда идти дальше.</p><button type="button" class="hint-button" @click="hintOpen = true"><span class="hint-icon">▧</span> Подсказка <b>→</b></button><div class="found-input"><label for="foundInput">Нашла письма с билетами?</label><div class="answer-field"><input id="foundInput" v-model="foundInput" type="text" inputmode="numeric" placeholder="Введи код с билетов" autocomplete="off" @keyup.enter="submitFound"><button type="button" aria-label="Отправить" @click="submitFound">→</button></div><p class="found-note" role="status">{{ foundNote }}</p></div></article><p class="soft-foot">Не торопись. Самое интересное — в деталях.</p></section>
-    <section v-else-if="screen === 'letter'" class="screen active letter-screen"><div class="letter-seal">✉</div><p class="eyebrow">письмо № 02</p><h2 class="success-title">Маршрут<br><em>начинается.</em></h2><article class="glass-card letter-card"><p class="letter-greeting">Привет, мышка!</p><p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу сказать: много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p><p>Ружик в надёжных руках, можешь о нём не беспокоиться. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p><p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p><div class="letter-sign">Твой маршрут ✦</div></article><button type="button" class="arrival-button" @click="setScreen('arrival')">Я доехала <b>→</b></button></section>
-    <section v-else-if="screen === 'arrival'" class="screen active arrival-screen"><div class="hotel-pin">⌖</div><p class="eyebrow">добро пожаловать в сочи</p><h2 class="success-title">Твоя новая<br><em>точка.</em></h2><article class="glass-card hotel-card"><p class="hotel-label">отель</p><h3>8Авеню by Provence</h3><p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p><a class="hotel-link" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель <b>↗</b></a><div class="divider" /><p class="hotel-text">Приезжай, располагайся — там тебя ждёт следующая подсказка.</p></article><button type="button" class="arrival-button" @click="hotelCodeOpen = true">Я в отеле <b>→</b></button></section>
-    <section v-else class="screen active next-screen"><div class="safe-mark">⌑</div><p class="eyebrow">секретная точка</p><h2 class="success-title">Тише.<br><em>Сейф рядом.</em></h2><article class="glass-card safe-card"><p class="safe-lead">Ищи маленькую стальную дверцу там, где вещи остаются в безопасности до утра. Она умеет хранить не только ценности, но и подсказки.</p><div class="safe-divider" /><p class="safe-label">кодовая головоломка</p><p class="safe-riddle">Вспомни номер дверцы с письмами и цифры, которые были обведены на билетах.</p><ol class="safe-steps"><li>Напиши оба числа подряд.</li><li>Убери все повторяющиеся цифры, но первую встречу каждой оставь.</li><li>Не меняй порядок.</li></ol><label class="answer-field safe-input"><input v-model="safeCode" type="text" inputmode="numeric" maxlength="5" placeholder="Введи код сейфа" autocomplete="one-time-code" @keyup.enter="checkSafeCode"><button type="button" aria-label="Открыть сейф" @click="checkSafeCode">→</button></label><p class="found-note" role="status">{{ safeCodeNote }}</p></article></section>
-    <div class="modal" :class="{ show: hintOpen }" :aria-hidden="!hintOpen"><div class="modal-backdrop" @click="hintOpen = false" /><article class="modal-card"><button type="button" class="modal-close" aria-label="Закрыть" @click="hintOpen = false">×</button><p class="eyebrow">подсказка</p><h2>Ищи эту дверцу</h2><img src="/assets/mailbox-511.png" alt="Почтовый ящик с номером 511"><p>Номер должен быть совсем рядом. Ты справишься.</p></article></div>
-    <div class="modal rescue-modal" :class="{ show: rescueOpen }" :aria-hidden="!rescueOpen"><div class="modal-backdrop" /><article class="modal-card rescue-card"><div class="rescue-icon">✦</div><p class="eyebrow">секретный запас</p><h2>Ну ладно,<br><em>не нервничай.</em></h2><p>Вот тебе ещё <strong>100 попыток</strong>. На этот раз точно получится.</p><button type="button" class="rescue-button" @click="addAttempts">Забрать попытки <b>→</b></button></article></div>
-    <div class="modal hotel-code-modal" :class="{ show: hotelCodeOpen }" :aria-hidden="!hotelCodeOpen"><div class="modal-backdrop" @click="hotelCodeOpen = false" /><article class="modal-card hotel-code-card"><button type="button" class="modal-close" aria-label="Закрыть" @click="hotelCodeOpen = false">×</button><div class="rescue-icon">⌘</div><p class="eyebrow">в отеле</p><h2>Введи<br><em>кодовое слово.</em></h2><p>Оно приведёт тебя к следующей подсказке.</p><label class="answer-field"><input v-model="hotelCode" type="text" placeholder="Кодовое слово" autocomplete="off" @keyup.enter="checkHotelCode"><button type="button" aria-label="Проверить код" @click="checkHotelCode">→</button></label><p class="found-note" role="status">{{ hotelCodeNote }}</p></article></div>
+  <main class="app-shell" :class="`stage-${screen}`">
+    <div class="sky" aria-hidden="true">
+      <i class="glow glow-one" />
+      <i class="glow glow-two" />
+      <i class="grain" />
+    </div>
+
+    <header class="topbar">
+      <button type="button" class="round-button" aria-label="Начать заново" @click="resetQuest">↺</button>
+      <div class="progress-wrap">
+        <span>Глава 01</span>
+        <div class="progress"><i :style="{ width: progress }" /></div>
+      </div>
+      <div class="round-button sparkle" aria-hidden="true">✦</div>
+    </header>
+
+    <section v-if="screen === 'intro'" class="screen">
+      <div class="hero">
+        <div class="envelope">
+          <span class="stamp">SOCHI · 28.08</span>
+          <span class="wax" aria-hidden="true">✦</span>
+        </div>
+      </div>
+      <p class="eyebrow">личный квест</p>
+      <h1>Найди<br><em>меня.</em></h1>
+      <p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p>
+      <div class="choice-list">
+        <button type="button" class="choice primary" @click="choose('yes')"><span>Да, готова</span><b>→</b></button>
+        <button type="button" class="choice" @click="choose('no')"><span>Нет, не хочу тебя искать</span><b>→</b></button>
+        <button type="button" class="choice" @click="choose('info')"><span>Я ничего не поняла</span><b>→</b></button>
+      </div>
+    </section>
+
+    <section v-else-if="screen === 'question'" class="screen">
+      <div class="question-head">
+        <p class="eyebrow">этап 01 · точка на карте</p>
+        <span class="attempts"><strong>{{ attempts }}</strong> {{ attemptsLabel.replace(/^\d+\s/, '') }}</span>
+      </div>
+      <article class="glass-card question-card">
+        <div class="map-pin">⌖</div>
+        <h2>Где я?</h2>
+        <p>Чтобы искать было проще, нужно понять, где искать. Тебе нужно угадать, где я.</p>
+        <label class="answer-field">
+          <input v-model="answer" type="text" placeholder="Угадай, где я..." autocomplete="off" @focus="scrollField" @keyup.enter="checkAnswer">
+          <button type="button" aria-label="Проверить ответ" @click="checkAnswer">→</button>
+        </label>
+        <p class="answer-note" role="status">{{ answerNote }}</p>
+      </article>
+      <div class="quest-mark"><span /><span /><span /></div>
+    </section>
+
+    <section v-else-if="screen === 'clue'" class="screen">
+      <div class="success-burst">✦</div>
+      <p class="eyebrow">этап 01 пройден</p>
+      <h2 class="success-title">Ты на верном<br><em>пути.</em></h2>
+      <article class="glass-card clue-card">
+        <p class="clue-label">следующая координата</p>
+        <p class="cipher">V · I · I</p>
+        <p class="cipher-sub">пятьсот + одиннадцать</p>
+        <div class="divider" />
+        <p class="clue-text">Там, где письма ждут своих историй, ищи дверцу с этим номером. Она знает, куда идти дальше.</p>
+        <button type="button" class="hint-button" @click="hintOpen = true"><span class="hint-icon">▧</span> Подсказка <b>→</b></button>
+        <div class="found-input">
+          <label for="foundInput">Нашла письма с билетами?</label>
+          <div class="answer-field">
+            <input id="foundInput" v-model="foundInput" type="text" inputmode="numeric" placeholder="Введи код с билетов" autocomplete="off" @focus="scrollField" @keyup.enter="submitFound">
+            <button type="button" aria-label="Отправить" @click="submitFound">→</button>
+          </div>
+          <p class="found-note" role="status">{{ foundNote }}</p>
+        </div>
+      </article>
+      <p class="soft-foot">Не торопись. Самое интересное — в деталях.</p>
+    </section>
+
+    <section v-else-if="screen === 'letter'" class="screen">
+      <div class="letter-seal">✉</div>
+      <p class="eyebrow">письмо № 02</p>
+      <h2 class="success-title">Маршрут<br><em>начинается.</em></h2>
+      <article class="glass-card letter-card">
+        <p class="letter-greeting">Привет, мышка!</p>
+        <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу сказать: много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
+        <p>Ружик в надёжных руках, можешь о нём не беспокоиться. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
+        <p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p>
+        <div class="letter-sign">Твой маршрут ✦</div>
+      </article>
+      <button type="button" class="arrival-button" @click="setScreen('arrival')">Я доехала <b>→</b></button>
+    </section>
+
+    <section v-else-if="screen === 'arrival'" class="screen">
+      <div class="hotel-pin">⌖</div>
+      <p class="eyebrow">добро пожаловать в сочи</p>
+      <h2 class="success-title">Твоя новая<br><em>точка.</em></h2>
+      <article class="glass-card hotel-card">
+        <p class="hotel-label">отель</p>
+        <h3>8Авеню by Provence</h3>
+        <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>
+        <a class="hotel-link" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель <b>↗</b></a>
+        <div class="divider" />
+        <p class="hotel-text">Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
+      </article>
+      <button type="button" class="arrival-button" @click="hotelCodeOpen = true">Я в отеле <b>→</b></button>
+    </section>
+
+    <section v-else class="screen">
+      <div class="safe-mark">⌑</div>
+      <p class="eyebrow">секретная точка</p>
+      <h2 class="success-title">Тише.<br><em>Сейф рядом.</em></h2>
+      <article class="glass-card safe-card">
+        <p class="safe-lead">Ищи маленькую стальную дверцу там, где вещи остаются в безопасности до утра. Она умеет хранить не только ценности, но и подсказки.</p>
+        <div class="safe-divider" />
+        <p class="safe-label">кодовая головоломка</p>
+        <p class="safe-riddle">Вспомни номер дверцы с письмами и цифры, которые были обведены на билетах.</p>
+        <ol class="safe-steps">
+          <li>Напиши оба числа подряд.</li>
+          <li>Убери все повторяющиеся цифры, но первую встречу каждой оставь.</li>
+          <li>Не меняй порядок.</li>
+        </ol>
+        <label class="answer-field safe-input">
+          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="5" placeholder="Введи код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
+          <button type="button" aria-label="Открыть сейф" @click="checkSafeCode">→</button>
+        </label>
+        <p class="found-note" role="status">{{ safeCodeNote }}</p>
+      </article>
+    </section>
+
+    <div class="modal" :class="{ show: hintOpen }" :aria-hidden="!hintOpen">
+      <div class="modal-backdrop" @click="hintOpen = false" />
+      <article class="modal-card">
+        <button type="button" class="modal-close" aria-label="Закрыть" @click="hintOpen = false">×</button>
+        <p class="eyebrow">подсказка</p>
+        <h2>Ищи эту дверцу</h2>
+        <img src="/assets/mailbox-511.png" alt="Почтовый ящик с номером 511">
+        <p>Номер должен быть совсем рядом. Ты справишься.</p>
+      </article>
+    </div>
+
+    <div class="modal rescue-modal" :class="{ show: rescueOpen }" :aria-hidden="!rescueOpen">
+      <div class="modal-backdrop" />
+      <article class="modal-card rescue-card">
+        <div class="rescue-icon">✦</div>
+        <p class="eyebrow">секретный запас</p>
+        <h2>Ну ладно,<br><em>не нервничай.</em></h2>
+        <p>Вот тебе ещё <strong>100 попыток</strong>. На этот раз точно получится.</p>
+        <button type="button" class="rescue-button" @click="addAttempts">Забрать попытки <b>→</b></button>
+      </article>
+    </div>
+
+    <div class="modal hotel-code-modal" :class="{ show: hotelCodeOpen }" :aria-hidden="!hotelCodeOpen">
+      <div class="modal-backdrop" @click="hotelCodeOpen = false" />
+      <article class="modal-card hotel-code-card">
+        <button type="button" class="modal-close" aria-label="Закрыть" @click="hotelCodeOpen = false">×</button>
+        <div class="rescue-icon">⌘</div>
+        <p class="eyebrow">в отеле</p>
+        <h2>Введи<br><em>кодовое слово.</em></h2>
+        <p>Оно приведёт тебя к следующей подсказке.</p>
+        <label class="answer-field">
+          <input v-model="hotelCode" type="text" placeholder="Кодовое слово" autocomplete="off" @focus="scrollField" @keyup.enter="checkHotelCode">
+          <button type="button" aria-label="Проверить код" @click="checkHotelCode">→</button>
+        </label>
+        <p class="found-note" role="status">{{ hotelCodeNote }}</p>
+      </article>
+    </div>
+
     <div class="toast" :class="{ show: toast }">{{ toast }}</div>
   </main>
 </template>
-
-<style scoped>
-.app-shell{--blue:#f9a8c2;--blue-shadow:#db2777}.glow-two{background:#f9a8c2!important}.answer-field{background:#fff1f5!important;box-shadow:inset 0 2px 5px rgba(219,39,119,.13)!important}.rescue-button{background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.36),transparent 60%),#f9a8c2!important;box-shadow:inset 0 1px rgba(255,255,255,.55),0 6px 0 #db2777,0 12px 20px rgba(219,39,119,.24)!important}.rescue-button:active{box-shadow:inset 0 1px rgba(255,255,255,.4),0 0 #db2777,0 4px 8px rgba(219,39,119,.15)!important}
-.found-input{margin-top:18px;padding-top:17px;border-top:1px solid rgba(239,202,216,.82);text-align:left}.found-input label{display:block;margin-bottom:8px;color:#a27086;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.found-note{min-height:15px;margin:8px 2px 0;color:#a27086;font-size:11px}
-.attempts{display:flex;align-items:center;gap:5px;font-size:12px!important}.attempts strong{font-size:21px;line-height:.8;color:#713f12}.rescue-card{text-align:center;padding:30px 24px 27px}.rescue-icon{display:grid;place-items:center;width:62px;height:62px;margin:0 auto 19px;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.38),transparent 60%),#fb7185;color:#fff;font-size:27px;box-shadow:inset 0 1px rgba(255,255,255,.5),0 6px 0 #be123c,0 12px 20px rgba(190,18,60,.2);transform:rotate(9deg)}.rescue-card h2{font-size:40px;line-height:.98}.rescue-card>p:not(.eyebrow){margin:17px auto 23px;max-width:295px;color:#312e81;font-size:15px;font-weight:700;line-height:1.55}.rescue-card>p strong{color:#6d28d9}.rescue-button{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;padding:16px;border:0;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.36),transparent 60%),#60a5fa;color:#fff;font:900 16px Nunito;box-shadow:inset 0 1px rgba(255,255,255,.55),0 6px 0 #1d4ed8,0 12px 20px rgba(29,78,216,.24);cursor:pointer;transition:transform 100ms ease-out,box-shadow 100ms ease-out}.rescue-button:active{transform:translateY(6px);box-shadow:inset 0 1px rgba(255,255,255,.4),0 0 #1d4ed8,0 4px 8px rgba(29,78,216,.15)}.rescue-button b{font-size:20px}
-.letter-screen{padding-top:34px}.letter-seal{display:grid;place-items:center;width:70px;height:70px;margin:2px auto 18px;border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.4),transparent 60%),#c59be9;color:#fff;font-size:30px;box-shadow:inset 0 1px rgba(255,255,255,.55),0 7px 0 #8857b5,0 14px 23px rgba(136,87,181,.2);transform:rotate(-6deg)}.letter-card{padding:27px 23px 21px;border-radius:28px;text-align:left}.letter-card p{margin:0 0 15px;color:#56395d;font-size:14px;font-weight:700;line-height:1.66}.letter-card .letter-greeting{color:#34213f;font-size:22px;font-weight:900}.letter-sign{padding-top:16px;border-top:2px dashed #f5c4d4;color:#bb3e6a;font-size:13px;font-weight:900}.email-note{margin:22px auto 0;max-width:290px;padding:12px 15px;border-radius:16px;background:#fff0f5;color:#8c3b60;text-align:center;font-size:12px;font-weight:800}
-.arrival-button{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;margin:26px 0 8px;padding:16px;border:0;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.38),transparent 60%),#f5a8c0;color:#fff;font:900 16px Nunito;box-shadow:inset 0 1px rgba(255,255,255,.55),0 6px 0 #d84775,0 12px 20px rgba(216,71,117,.24);cursor:pointer;transition:transform 100ms ease-out,box-shadow 100ms ease-out}.arrival-button:active{transform:translateY(6px);box-shadow:inset 0 1px rgba(255,255,255,.4),0 0 #d84775,0 4px 8px rgba(216,71,117,.15)}.arrival-button b{font-size:21px}.arrival-screen{padding-top:32px}.hotel-pin{display:grid;place-items:center;width:70px;height:70px;margin:0 auto 18px;border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.4),transparent 60%),#ffc6ae;color:#fff;font-size:33px;box-shadow:inset 0 1px rgba(255,255,255,.6),0 7px 0 #df8d72,0 14px 23px rgba(223,141,114,.2);transform:rotate(7deg)}.hotel-card{padding:26px 22px 23px;border-radius:28px;text-align:center}.hotel-label{margin:0;color:#8c718e;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.hotel-card h3{margin:8px 0 4px;color:#34213f;font-size:25px;line-height:1.1}.hotel-address{margin:0;color:#56395d;font-size:14px;font-weight:800}.hotel-link{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:19px;padding:12px;border-radius:15px;background:#f6eafa;color:#8857b5;font-size:13px;font-weight:900;text-decoration:none;box-shadow:0 3px 0 #d9b8f2}.hotel-link b{font-size:18px}.hotel-text{margin:0;color:#56395d;font-size:14px;font-weight:700;line-height:1.6}.hotel-code-card{text-align:center;padding:29px 23px 24px}.hotel-code-card h2{font-size:37px;line-height:.98}.hotel-code-card>p:not(.eyebrow){margin:15px auto 20px;color:#56395d;font-size:14px;font-weight:700}.hotel-code-card .rescue-icon{margin-bottom:17px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.4),transparent 60%),#c59be9;box-shadow:inset 0 1px rgba(255,255,255,.55),0 6px 0 #8857b5,0 12px 20px rgba(136,87,181,.2)}.empty-card{padding:35px 24px;border-radius:28px;text-align:center}.empty-card p{margin:0;color:#56395d;font-size:15px;font-weight:800}
-</style>
-
-<style scoped>
-.next-screen{padding-top:30px}.safe-mark{display:grid;place-items:center;width:72px;height:72px;margin:0 auto 18px;border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.48),transparent 60%),#c59be9;color:#fff;font-size:34px;box-shadow:inset 0 1px rgba(255,255,255,.58),0 7px 0 #8857b5,0 14px 23px rgba(136,87,181,.2);transform:rotate(-5deg)}.safe-card{padding:25px 21px 22px;border-radius:28px;text-align:left}.safe-lead{margin:0;color:#56395d;font-size:14px;font-weight:700;line-height:1.58}.safe-divider{width:58px;height:5px;margin:21px auto;border-radius:999px;background:#f5a8c0;box-shadow:0 2px 0 #d84775}.safe-label{margin:0 0 10px;color:#8c718e;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;text-align:center}.safe-riddle{margin:0;color:#34213f;font-size:14px;font-weight:900;line-height:1.5}.safe-steps{display:grid;gap:7px;margin:15px 0 20px;padding-left:19px;color:#56395d;font-size:13px;font-weight:700;line-height:1.45}.safe-steps li::marker{color:#bb3e6a;font-weight:900}.safe-input{margin-top:4px}
-</style>
