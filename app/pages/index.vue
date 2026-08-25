@@ -31,9 +31,6 @@ function storageGet(key: string) {
 function storageSet(key: string, value: string) {
   try { localStorage.setItem(key, value) } catch {}
 }
-function storageClear(keys: string[]) {
-  try { keys.forEach((key) => localStorage.removeItem(key)) } catch {}
-}
 function telegramApp() {
   return (window as Window & { Telegram?: { WebApp?: {
     MainButton: {
@@ -75,7 +72,14 @@ async function submitFound() {
 }
 function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
 function checkSafeCode() { if (safeCode.value.trim() !== '51234') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
-function resetQuest() { storageClear(['questScreen', 'questAttempts', 'questSolved', 'questMailboxFound', 'questTicketsUnlocked']); attempts.value = 3; answer.value = ''; answerNote.value = ''; foundInput.value = ''; foundNote.value = ''; hotelCode.value = ''; hotelCodeNote.value = ''; safeCode.value = ''; safeCodeNote.value = ''; setScreen('intro') }
+const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next']
+function goBack() {
+  if (hotelCodeOpen.value) { hotelCodeOpen.value = false; return }
+  if (hintOpen.value) { hintOpen.value = false; return }
+  if (rescueOpen.value) { rescueOpen.value = false; return }
+  const index = SCREEN_ORDER.indexOf(screen.value)
+  if (index > 0) setScreen(SCREEN_ORDER[index - 1])
+}
 function scrollField(event: Event) { const el = event.target as HTMLElement; window.setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 280) }
 function startQuest() { choose('yes') }
 onMounted(() => {
@@ -105,39 +109,20 @@ onMounted(() => {
 
 <template>
   <main class="app-shell" :class="[`stage-${screen}`, { 'has-tg-main': hasTgMain && screen === 'intro' }]">
-    <div class="sky" aria-hidden="true">
-      <i class="grain" />
-      <i class="grid" />
-      <i class="plus plus-a">+</i>
-      <i class="plus plus-b">+</i>
-      <i class="plus plus-c">+</i>
-      <i class="spark spark-a">✦</i>
-      <i class="spark spark-b">✦</i>
-    </div>
-
     <header class="topbar">
-      <button type="button" class="round-button" aria-label="Начать заново" @click="resetQuest">↺</button>
+      <button v-if="screen !== 'intro'" type="button" class="back-button" aria-label="Назад" @click="goBack">назад</button>
+      <span v-else class="back-spacer" />
       <div class="progress-wrap">
         <span class="brand">найди меня</span>
         <div class="progress"><i :style="{ width: progress }" /></div>
       </div>
-      <div class="round-button sparkle" aria-hidden="true">✦</div>
+      <span class="back-spacer" />
     </header>
-
-    <div class="ticker" aria-hidden="true">
-      <div class="ticker-track">
-        <span>Сочи</span><i /><span>28 августа</span><i /><span>личный квест</span><i /><span>ящик 511</span><i /><span>маршрут</span><i /><span>найди меня</span><i />
-        <span>Сочи</span><i /><span>28 августа</span><i /><span>личный квест</span><i /><span>ящик 511</span><i /><span>маршрут</span><i /><span>найди меня</span><i />
-      </div>
-    </div>
 
     <section v-if="screen === 'intro'" class="screen">
       <div class="hero" aria-hidden="true">
         <i class="blob blob-tr" />
         <i class="blob blob-l" />
-        <i class="blob blob-y" />
-        <i class="blob blob-ring" />
-        <span class="stamp stamp-tr">Sochi · 28.08</span>
         <svg class="arch-svg" viewBox="0 0 320 150">
           <path id="title-arch" d="M18 128 Q160 8 302 128" fill="none" />
           <text fill="currentColor" font-size="30" font-weight="800" letter-spacing="3" font-family="Syne, Outfit, sans-serif">
@@ -151,10 +136,6 @@ onMounted(() => {
         <button type="button" class="ghost-link" @click="choose('no')">Не хочу</button>
       </div>
       <div class="orange-panel">
-        <div class="chip-row">
-          <span class="chip">этап 01</span>
-          <span class="chip chip-butter">3 попытки</span>
-        </div>
         <p class="panel-title">Готова?</p>
         <p class="panel-copy">Первый след уже ждёт. Три попытки — и точка на карте.</p>
         <button type="button" class="choice primary" @click="startQuest"><span>Да, готова</span></button>
@@ -169,9 +150,6 @@ onMounted(() => {
       <div class="hero hero-mini" aria-hidden="true">
         <i class="blob blob-tr" />
         <i class="blob blob-l" />
-        <i class="blob blob-y" />
-        <i class="blob blob-ring" />
-        <span class="stamp stamp-tr">точка 01</span>
       </div>
       <article class="glass-card question-card">
         <h2>Где я?</h2>
@@ -189,16 +167,12 @@ onMounted(() => {
       <p class="eyebrow pad-eyebrow">этап 01 пройден</p>
       <h2 class="success-title">Ты на верном<br>пути.</h2>
       <article class="glass-card clue-card">
-        <div class="chip-row">
-          <span class="chip">ящик</span>
-          <span class="chip chip-butter">511</span>
-        </div>
         <p class="clue-label">следующая координата</p>
         <p class="cipher">V · I · I</p>
         <p class="cipher-sub">пятьсот + одиннадцать</p>
         <div class="divider" />
         <p class="clue-text">Там, где письма ждут своих историй, ищи дверцу с этим номером. Она знает, куда идти дальше.</p>
-        <button type="button" class="hint-button" @click="hintOpen = true"><span class="hint-icon">▧</span> Подсказка <b>→</b></button>
+        <button type="button" class="hint-button" @click="hintOpen = true">Подсказка</button>
         <div class="found-input">
           <label for="foundInput">Нашла письма с билетами?</label>
           <div class="answer-field">
@@ -219,7 +193,7 @@ onMounted(() => {
         <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу сказать: много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
         <p>Ружик в надёжных руках, можешь о нём не беспокоиться. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
         <p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p>
-        <div class="letter-sign">Твой маршрут ✦</div>
+        <div class="letter-sign">Твой маршрут</div>
       </article>
       <div class="orange-panel cta-panel">
         <button type="button" class="choice primary" @click="setScreen('arrival')">Я доехала</button>
@@ -230,10 +204,6 @@ onMounted(() => {
       <p class="eyebrow pad-eyebrow">добро пожаловать в сочи</p>
       <h2 class="success-title">Твоя новая<br>точка.</h2>
       <article class="glass-card hotel-card">
-        <div class="chip-row">
-          <span class="chip">сочи</span>
-          <span class="chip chip-butter">28–30.08</span>
-        </div>
         <p class="hotel-label">отель</p>
         <h3>8Авеню by Provence</h3>
         <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>

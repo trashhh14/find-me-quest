@@ -40,69 +40,29 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   --pad-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + var(--tg-safe-bottom, 0px));
 }
 
-.sky { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none }
-.grain {
-  position: absolute;
-  inset: 0;
-  opacity: .16;
-  mix-blend-mode: multiply;
-  background-image: radial-gradient(rgba(42, 20, 16, .55) 0.55px, transparent 0.7px);
-  background-size: 3px 3px;
-}
-.grid {
-  position: absolute;
-  inset: 0;
-  opacity: .14;
-  background-image: radial-gradient(var(--sage) 1px, transparent 1.2px);
-  background-size: 18px 18px;
-}
-.plus, .spark {
-  position: absolute;
-  color: var(--cocoa);
-  font: 800 18px/1 var(--font-display);
-  opacity: .45;
-  animation: twinkle 3.6s ease-in-out infinite;
-}
-.plus-a { top: 18%; left: 46%; animation-delay: .2s }
-.plus-b { top: 58%; right: 12%; color: var(--sage); animation-delay: 1.1s }
-.plus-c { bottom: 28%; left: 8%; font-size: 14px; animation-delay: 1.8s }
-.spark { color: var(--sage); font-size: 14px }
-.spark-a { top: 12%; right: 28%; animation-delay: .6s }
-.spark-b { top: 42%; left: 16%; animation-delay: 2s }
-.topbar, .screen, .ticker { position: relative; z-index: 1 }
+.topbar, .screen { position: relative; z-index: 1 }
 
 .topbar {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  grid-template-columns: 72px minmax(0, 1fr) 72px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 0 0 auto;
   width: 100%;
-  padding: 4px 16px 8px;
+  padding: 6px 16px 10px;
 }
-.round-button {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  aspect-ratio: 1 / 1;
+.back-button {
+  justify-self: start;
+  padding: 8px 2px;
   border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--sage);
-  font: 800 22px/1 var(--font-display);
+  background: none;
+  color: var(--sage-deep);
+  font: 600 14px/1 var(--font-ui);
+  letter-spacing: .04em;
   cursor: pointer;
 }
-.round-button:active { filter: brightness(.92) }
-.sparkle {
-  color: var(--snow);
-  background: var(--sage);
-  border-radius: 50%;
-  font-size: 15px;
-  box-shadow: 0 0 0 4px rgba(109, 154, 134, .28);
-  animation: pulseRing 2.4s ease-out infinite;
-}
+.back-button:active { opacity: .55 }
+.back-spacer { display: block; width: 72px; height: 1px }
 .progress-wrap { display: grid; gap: 5px; min-width: 0; text-align: center }
 .progress-wrap span,
 .eyebrow,
@@ -171,9 +131,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
 }
 .blob {
   position: absolute;
-  background: var(--orange);
+  background: var(--snow);
   border-radius: 50%;
-  animation: floaty 6.5s ease-in-out infinite;
 }
 .blob-tr {
   width: 168px;
@@ -181,35 +140,15 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   top: 18px;
   right: 18px;
   border-radius: 0 0 84px 84px;
-  animation-duration: 7.5s;
 }
 .blob-l {
   width: 118px;
   height: 118px;
   left: -36px;
   top: 96px;
-  animation-delay: -2s;
-}
-.blob-y {
-  width: 42px;
-  height: 42px;
-  right: 78px;
-  top: 118px;
-  background: var(--sage);
-  animation-duration: 5s;
-  animation-delay: -1s;
-  box-shadow: 0 8px 0 var(--sage-deep);
-}
-.blob-ring {
-  width: 58px;
-  height: 58px;
-  left: 48px;
-  top: 22px;
-  background: transparent;
-  border: 6px solid var(--sage);
-  animation: spin 22s linear infinite;
 }
 .stamp {
+  display: none;
   position: absolute;
   z-index: 2;
   padding: 7px 8px;
@@ -231,7 +170,6 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   margin: 36px auto 0;
   overflow: visible;
   color: var(--sage);
-  filter: drop-shadow(3px 3px 0 rgba(59, 42, 40, .18));
 }
 
 h1, h2, .hotel-card h3 {
@@ -330,18 +268,6 @@ em { font-style: normal; color: var(--orange-deep) }
   position: relative;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
 }
-.orange-panel::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 8px;
-  background-image: radial-gradient(circle at 8px 0, var(--peach) 7px, transparent 8px);
-  background-size: 16px 8px;
-  background-repeat: repeat-x;
-  pointer-events: none;
-}
 .orange-panel::before {
   content: "";
   position: absolute;
@@ -411,16 +337,6 @@ em { font-style: normal; color: var(--orange-deep) }
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: .08em;
-  box-shadow: 4px 4px 0 rgba(78, 124, 104, .45);
-}
-.choice.primary::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg, transparent 20%, rgba(255, 248, 244, .4), transparent 80%);
-  transform: translateX(-130%);
-  animation: shine 3.4s ease-in-out .8s infinite;
-  pointer-events: none;
 }
 .choice:active, .hint-button:active, .arrival-button:active, .rescue-button:active, .round-button:active, .hotel-link:active, .answer-field button:active {
   transform: scale(.985);
@@ -467,7 +383,7 @@ em { font-style: normal; color: var(--orange-deep) }
   letter-spacing: .08em;
   text-transform: uppercase;
   white-space: nowrap;
-  box-shadow: 3px 3px 0 var(--sage);
+
 }
 .attempts strong { font-size: 18px; color: var(--sage-deep); font-family: var(--font-display) }
 
@@ -537,7 +453,7 @@ em { font-style: normal; color: var(--orange-deep) }
   background: var(--sage);
   color: var(--snow);
   font-size: 22px;
-  box-shadow: 4px 4px 0 var(--sage-deep);
+
 }
 
 .answer-field {
@@ -839,7 +755,7 @@ em { font-style: normal; color: var(--orange-deep) }
   color: var(--snow);
   font: 800 20px/1 var(--font-ui);
   cursor: pointer;
-  box-shadow: 3px 3px 0 var(--sage-deep);
+
 }
 .rescue-card, .hotel-code-card { text-align: left }
 .rescue-card > p:not(.eyebrow),
