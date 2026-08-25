@@ -14,6 +14,7 @@ const safeCodeNote = ref('')
 const toast = ref('')
 const hintOpen = ref(false)
 const rescueOpen = ref(false)
+const hasTgMain = ref(false)
 let toastTimer: ReturnType<typeof setTimeout> | undefined
 const progress = computed(() => ({
   intro: '12%',
@@ -24,9 +25,30 @@ const progress = computed(() => ({
   next: '100%',
 }[screen.value]))
 const attemptsLabel = computed(() => `${attempts.value} ${attempts.value === 1 ? 'попытка' : attempts.value < 5 ? 'попытки' : 'попыток'}`)
+function storageGet(key: string) {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+function storageSet(key: string, value: string) {
+  try { localStorage.setItem(key, value) } catch {}
+}
+function storageClear(keys: string[]) {
+  try { keys.forEach((key) => localStorage.removeItem(key)) } catch {}
+}
+function telegramApp() {
+  return (window as Window & { Telegram?: { WebApp?: {
+    MainButton: {
+      setText: (text: string) => void
+      setParams?: (params: Record<string, string | boolean>) => void
+      show: () => void
+      hide: () => void
+      onClick: (callback: () => void) => void
+      offClick: (callback: () => void) => void
+    }
+  } } }).Telegram?.WebApp
+}
 function setScreen(next: Screen) {
   screen.value = next
-  localStorage.setItem('questScreen', next)
+  storageSet('questScreen', next)
   requestAnimationFrame(() => {
     document.querySelector('.screen')?.scrollTo({ top: 0 })
   })
@@ -36,30 +58,53 @@ function choose(choice: 'yes' | 'no' | 'info') { if (choice === 'yes') return se
 function checkAnswer() {
   const normalized = answer.value.trim().toLocaleLowerCase('ru-RU').replace(/ё/g, 'е').replace(/[^а-я]/g, '')
   if (!normalized) { answerNote.value = 'Напиши свой вариант — я жду.'; return }
-  if (normalized === 'сочи') { answerNote.value = 'Да! Ты нашла первую точку.'; localStorage.setItem('questSolved', 'true'); window.setTimeout(() => setScreen('clue'), 550); return }
+  if (normalized === 'сочи') { answerNote.value = 'Да! Ты нашла первую точку.'; storageSet('questSolved', 'true'); window.setTimeout(() => setScreen('clue'), 550); return }
   if (attempts.value > 0) attempts.value--
-  localStorage.setItem('questAttempts', String(attempts.value)); answer.value = ''
+  storageSet('questAttempts', String(attempts.value)); answer.value = ''
   answerNote.value = attempts.value ? `Почти. Попробуй ещё — осталось: ${attempts.value}.` : 'Похоже, сегодня загадки особенно хитрые.'
   if (attempts.value === 0) window.setTimeout(() => rescueOpen.value = true, 350)
 }
-function addAttempts() { attempts.value = 100; localStorage.setItem('questAttempts', '100'); answerNote.value = 'Вот так лучше. Дыши — и пробуй снова.'; rescueOpen.value = false }
+function addAttempts() { attempts.value = 100; storageSet('questAttempts', '100'); answerNote.value = 'Вот так лучше. Дыши — и пробуй снова.'; rescueOpen.value = false }
 async function submitFound() {
   if (!foundInput.value.trim()) { foundNote.value = 'Введи код, который обведён на билете.'; return }
   if (foundInput.value.trim() !== '12345') { foundNote.value = 'Не похоже. Проверь цифры на билете ещё раз.'; return }
-  localStorage.setItem('questMailboxFound', foundInput.value.trim())
-  localStorage.setItem('questTicketsUnlocked', 'true')
+  storageSet('questMailboxFound', foundInput.value.trim())
+  storageSet('questTicketsUnlocked', 'true')
   foundNote.value = 'Верно. Открываю твоё письмо…'
   window.setTimeout(() => setScreen('letter'), 600)
 }
 function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
 function checkSafeCode() { if (safeCode.value.trim() !== '51234') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
-function resetQuest() { ;['questScreen', 'questAttempts', 'questSolved', 'questMailboxFound', 'questTicketsUnlocked'].forEach(key => localStorage.removeItem(key)); attempts.value = 3; answer.value = ''; answerNote.value = ''; foundInput.value = ''; foundNote.value = ''; hotelCode.value = ''; hotelCodeNote.value = ''; safeCode.value = ''; safeCodeNote.value = ''; setScreen('intro') }
+function resetQuest() { storageClear(['questScreen', 'questAttempts', 'questSolved', 'questMailboxFound', 'questTicketsUnlocked']); attempts.value = 3; answer.value = ''; answerNote.value = ''; foundInput.value = ''; foundNote.value = ''; hotelCode.value = ''; hotelCodeNote.value = ''; safeCode.value = ''; safeCodeNote.value = ''; setScreen('intro') }
 function scrollField(event: Event) { const el = event.target as HTMLElement; window.setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 280) }
-onMounted(() => { attempts.value = Number(localStorage.getItem('questAttempts') || 3); const saved = localStorage.getItem('questScreen') as Screen | null; if (localStorage.getItem('questTicketsUnlocked') === 'true' && ['letter', 'arrival', 'next'].includes(saved || '')) screen.value = saved!; else if (localStorage.getItem('questTicketsUnlocked') === 'true') screen.value = 'letter'; else if (localStorage.getItem('questSolved') === 'true') screen.value = 'clue'; else if (saved === 'question') screen.value = 'question'; foundInput.value = localStorage.getItem('questMailboxFound') || '' })
+function startQuest() { choose('yes') }
+onMounted(() => {
+  attempts.value = Number(storageGet('questAttempts') || 3)
+  const saved = storageGet('questScreen') as Screen | null
+  if (storageGet('questTicketsUnlocked') === 'true' && ['letter', 'arrival', 'next'].includes(saved || '')) screen.value = saved!
+  else if (storageGet('questTicketsUnlocked') === 'true') screen.value = 'letter'
+  else if (storageGet('questSolved') === 'true') screen.value = 'clue'
+  else if (saved === 'question') screen.value = 'question'
+  foundInput.value = storageGet('questMailboxFound') || ''
+  const main = telegramApp()?.MainButton
+  hasTgMain.value = Boolean(main)
+  if (!main) return
+  watch(screen, (value) => {
+    main.offClick(startQuest)
+    if (value === 'intro') {
+      main.setText('Да, готова')
+      main.setParams?.({ color: '#c45c6e', text_color: '#fff8f4', is_active: true, is_visible: true })
+      main.show()
+      main.onClick(startQuest)
+    } else {
+      main.hide()
+    }
+  }, { immediate: true })
+})
 </script>
 
 <template>
-  <main class="app-shell" :class="`stage-${screen}`">
+  <main class="app-shell" :class="[`stage-${screen}`, { 'has-tg-main': hasTgMain && screen === 'intro' }]">
     <div class="sky" aria-hidden="true">
       <i class="glow glow-one" />
       <i class="glow glow-two" />
@@ -86,7 +131,7 @@ onMounted(() => { attempts.value = Number(localStorage.getItem('questAttempts') 
       <h1>Найди<br><em>меня.</em></h1>
       <p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p>
       <div class="choice-list">
-        <button type="button" class="choice primary" @click="choose('yes')"><span>Да, готова</span><b>→</b></button>
+        <button type="button" class="choice primary" @click="startQuest"><span>Да, готова</span><b>→</b></button>
         <button type="button" class="choice" @click="choose('no')"><span>Нет, не хочу тебя искать</span><b>→</b></button>
         <button type="button" class="choice" @click="choose('info')"><span>Я ничего не поняла</span><b>→</b></button>
       </div>

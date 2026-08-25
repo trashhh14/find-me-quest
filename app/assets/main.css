@@ -12,17 +12,17 @@ body {
   background: var(--page);
   color: var(--ink);
   font-family: var(--font-ui);
-  touch-action: pan-y pinch-zoom;
+  touch-action: manipulation;
   overscroll-behavior: none;
 }
 img, svg { max-width: 100%; height: auto; display: block }
 button, input { font: inherit }
-button { -webkit-tap-highlight-color: transparent }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
 
 .app-shell {
-  --pad-top: calc(12px + env(safe-area-inset-top, 0px));
-  --pad-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-  --frame: var(--tg-viewport-stable-height, 100svh);
+  --pad-top: calc(12px + env(safe-area-inset-top, 0px) + var(--tg-safe-top, 0px));
+  --pad-bottom: calc(24px + env(safe-area-inset-bottom, 0px) + var(--tg-safe-bottom, 0px));
+  --frame: var(--tg-viewport-stable-height, 100dvh);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -38,6 +38,9 @@ button { -webkit-tap-highlight-color: transparent }
     radial-gradient(120% 70% at 100% 0%, rgba(232, 179, 188, 0.35), transparent 55%),
     radial-gradient(90% 50% at 0% 100%, rgba(196, 160, 122, 0.22), transparent 50%),
     linear-gradient(180deg, #f7eee6 0%, var(--page) 42%, #ead6cc 100%);
+}
+.app-shell.has-tg-main {
+  --pad-bottom: calc(76px + env(safe-area-inset-bottom, 0px) + var(--tg-safe-bottom, 0px));
 }
 
 .sky { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none }
@@ -221,6 +224,8 @@ em { font-style: italic; color: var(--rose-deep) }
   width: 100%;
   margin-top: auto;
   padding-top: 22px;
+  position: relative;
+  z-index: 3;
 }
 .choice,
 .hint-button,
