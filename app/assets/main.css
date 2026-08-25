@@ -221,7 +221,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
 .choices {
   display: grid;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 .btn {
   display: flex;
@@ -248,7 +248,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   border: 1px solid rgba(226, 122, 163, .35);
 }
 a.btn { text-decoration: none }
-.btn-row { margin-top: auto; padding-top: 4px }
+.card > .btn { margin-top: 16px }
+.card > .btn + .btn { margin-top: 8px }
+.choices .btn { margin-top: 0 }
+.btn-row { margin-top: 16px }
 .btn-row .btn + .btn { margin-top: 8px }
 .modal-card .btn-row { margin-top: 16px }
 

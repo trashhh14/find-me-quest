@@ -144,14 +144,12 @@ onMounted(() => {
       <div class="ornament" aria-hidden="true">✦</div>
       <article class="card">
         <p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p>
+        <button type="button" class="btn" @click="startQuest">Да, готова</button>
         <div class="choices">
           <button type="button" class="btn-ghost btn" @click="choose('no')">Нет, не хочу тебя искать</button>
           <button type="button" class="btn-ghost btn" @click="choose('info')">Я ничего не поняла</button>
         </div>
       </article>
-      <div class="btn-row">
-        <button type="button" class="btn" @click="startQuest">Да, готова</button>
-      </div>
     </section>
 
     <section v-else-if="screen === 'question'" class="screen">
@@ -183,10 +181,8 @@ onMounted(() => {
           <button type="button" aria-label="Отправить" @click="submitFound">→</button>
         </label>
         <p class="note" role="status">{{ foundNote }}</p>
-      </article>
-      <div class="btn-row">
         <button type="button" class="btn-ghost btn" @click="hintOpen = true">Подсказка</button>
-      </div>
+      </article>
     </section>
 
     <section v-else-if="screen === 'letter'" class="screen">
@@ -199,10 +195,8 @@ onMounted(() => {
         <p>Ружик в надёжных руках, можешь о нём не беспокоиться. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
         <p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p>
         <p class="sign">Твой маршрут</p>
-      </article>
-      <div class="btn-row">
         <button type="button" class="btn" @click="setScreen('arrival')">Я доехала</button>
-      </div>
+      </article>
     </section>
 
     <section v-else-if="screen === 'arrival'" class="screen">
@@ -214,11 +208,9 @@ onMounted(() => {
         <p class="hotel-name">8Авеню by Provence</p>
         <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>
         <p>Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
-      </article>
-      <div class="btn-row">
         <a class="btn-ghost btn" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель</a>
         <button type="button" class="btn" @click="hotelCodeOpen = true">Я в отеле</button>
-      </div>
+      </article>
     </section>
 
     <section v-else class="screen">
