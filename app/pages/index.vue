@@ -73,13 +73,15 @@ async function submitFound() {
 function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
 function checkSafeCode() { if (safeCode.value.trim() !== '51234') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
 const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next']
+const photoBase = useRuntimeConfig().app.baseURL
+const photo = (name: string) => `${photoBase}us/${name}`.replace(/([^:])\/{2,}/g, '$1/')
 const photoSet = computed(() => ({
-  intro: ['/us/carousel.jpg', '/us/look.jpg'],
-  question: ['/us/mountains.jpg', '/us/tea.jpg'],
-  clue: ['/us/cafe.jpg', '/us/kiss.jpg'],
-  letter: ['/us/ruzhik.jpg', '/us/look.jpg'],
-  arrival: ['/us/fountain.jpg', '/us/carousel.jpg'],
-  next: ['/us/kiss.jpg', '/us/cafe.jpg'],
+  intro: [photo('carousel.jpg'), photo('look.jpg')],
+  question: [photo('mountains.jpg'), photo('tea.jpg')],
+  clue: [photo('cafe.jpg'), photo('kiss.jpg')],
+  letter: [photo('ruzhik.jpg'), photo('look.jpg')],
+  arrival: [photo('fountain.jpg'), photo('carousel.jpg')],
+  next: [photo('kiss.jpg'), photo('cafe.jpg')],
 }[screen.value]))
 function goBack() {
   if (hotelCodeOpen.value) { hotelCodeOpen.value = false; return }
