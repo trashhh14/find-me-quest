@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   ssr: false,
-  nitro: { preset: 'github_pages' },
+  nitro: {
+    preset: 'github_pages',
+    prerender: { routes: ['/', '/start'] },
+  },
   vite: { server: { allowedHosts: ['.loca.lt'] } },
   css: ['~/assets/main.css', '~/assets/palette.css'],
   runtimeConfig: {
