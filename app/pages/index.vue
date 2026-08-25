@@ -93,7 +93,7 @@ onMounted(() => {
     main.offClick(startQuest)
     if (value === 'intro') {
       main.setText('Да, готова')
-      main.setParams?.({ color: '#c45c6e', text_color: '#fff8f4', is_active: true, is_visible: true })
+      main.setParams?.({ color: '#ff6b3d', text_color: '#fff8f5', is_active: true, is_visible: true })
       main.show()
       main.onClick(startQuest)
     } else {
@@ -114,26 +114,32 @@ onMounted(() => {
     <header class="topbar">
       <button type="button" class="round-button" aria-label="Начать заново" @click="resetQuest">↺</button>
       <div class="progress-wrap">
-        <span>Глава 01</span>
+        <span class="brand">найди меня</span>
         <div class="progress"><i :style="{ width: progress }" /></div>
       </div>
-      <div class="round-button sparkle" aria-hidden="true">✦</div>
+      <div class="round-button sparkle" aria-hidden="true">●</div>
     </header>
 
     <section v-if="screen === 'intro'" class="screen">
-      <div class="hero">
-        <div class="envelope">
-          <span class="stamp">SOCHI · 28.08</span>
-          <span class="wax" aria-hidden="true">✦</span>
-        </div>
+      <div class="hero" aria-hidden="true">
+        <i class="blob blob-tr" />
+        <i class="blob blob-l" />
+        <svg class="arch-svg" viewBox="0 0 320 150">
+          <path id="title-arch" d="M18 128 Q160 8 302 128" fill="none" />
+          <text fill="currentColor" font-size="30" font-weight="800" letter-spacing="3" font-family="Syne, Outfit, sans-serif">
+            <textPath href="#title-arch" xlink:href="#title-arch" startOffset="50%" text-anchor="middle">НАЙДИ МЕНЯ</textPath>
+          </text>
+        </svg>
       </div>
-      <p class="eyebrow">личный квест</p>
-      <h1>Найди<br><em>меня.</em></h1>
       <p class="lead">Я уехал. Но оставил для тебя маршрут — если, конечно, ты готова пойти по следу.</p>
-      <div class="choice-list">
-        <button type="button" class="choice primary" @click="startQuest"><span>Да, готова</span><b>→</b></button>
-        <button type="button" class="choice" @click="choose('no')"><span>Нет, не хочу тебя искать</span><b>→</b></button>
-        <button type="button" class="choice" @click="choose('info')"><span>Я ничего не поняла</span><b>→</b></button>
+      <div class="ghost-links">
+        <button type="button" class="ghost-link" @click="choose('info')">Что это</button>
+        <button type="button" class="ghost-link" @click="choose('no')">Не хочу</button>
+      </div>
+      <div class="orange-panel">
+        <p class="panel-title">Готова?</p>
+        <p class="panel-copy">Первый след уже ждёт. Три попытки — и точка на карте.</p>
+        <button type="button" class="choice primary" @click="startQuest"><span>Да, готова</span></button>
       </div>
     </section>
 
@@ -142,8 +148,11 @@ onMounted(() => {
         <p class="eyebrow">этап 01 · точка на карте</p>
         <span class="attempts"><strong>{{ attempts }}</strong> {{ attemptsLabel.replace(/^\d+\s/, '') }}</span>
       </div>
+      <div class="hero hero-mini" aria-hidden="true">
+        <i class="blob blob-tr" />
+        <i class="blob blob-l" />
+      </div>
       <article class="glass-card question-card">
-        <div class="map-pin">⌖</div>
         <h2>Где я?</h2>
         <p>Чтобы искать было проще, нужно понять, где искать. Тебе нужно угадать, где я.</p>
         <label class="answer-field">
@@ -156,9 +165,8 @@ onMounted(() => {
     </section>
 
     <section v-else-if="screen === 'clue'" class="screen">
-      <div class="success-burst">✦</div>
-      <p class="eyebrow">этап 01 пройден</p>
-      <h2 class="success-title">Ты на верном<br><em>пути.</em></h2>
+      <p class="eyebrow pad-eyebrow">этап 01 пройден</p>
+      <h2 class="success-title">Ты на верном<br>пути.</h2>
       <article class="glass-card clue-card">
         <p class="clue-label">следующая координата</p>
         <p class="cipher">V · I · I</p>
@@ -179,9 +187,8 @@ onMounted(() => {
     </section>
 
     <section v-else-if="screen === 'letter'" class="screen">
-      <div class="letter-seal">✉</div>
-      <p class="eyebrow">письмо № 02</p>
-      <h2 class="success-title">Маршрут<br><em>начинается.</em></h2>
+      <p class="eyebrow pad-eyebrow">письмо № 02</p>
+      <h2 class="success-title">Маршрут<br>начинается.</h2>
       <article class="glass-card letter-card">
         <p class="letter-greeting">Привет, мышка!</p>
         <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу сказать: много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
@@ -189,13 +196,14 @@ onMounted(() => {
         <p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p>
         <div class="letter-sign">Твой маршрут ✦</div>
       </article>
-      <button type="button" class="arrival-button" @click="setScreen('arrival')">Я доехала <b>→</b></button>
+      <div class="orange-panel cta-panel">
+        <button type="button" class="choice primary" @click="setScreen('arrival')">Я доехала</button>
+      </div>
     </section>
 
     <section v-else-if="screen === 'arrival'" class="screen">
-      <div class="hotel-pin">⌖</div>
-      <p class="eyebrow">добро пожаловать в сочи</p>
-      <h2 class="success-title">Твоя новая<br><em>точка.</em></h2>
+      <p class="eyebrow pad-eyebrow">добро пожаловать в сочи</p>
+      <h2 class="success-title">Твоя новая<br>точка.</h2>
       <article class="glass-card hotel-card">
         <p class="hotel-label">отель</p>
         <h3>8Авеню by Provence</h3>
@@ -204,13 +212,14 @@ onMounted(() => {
         <div class="divider" />
         <p class="hotel-text">Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
       </article>
-      <button type="button" class="arrival-button" @click="hotelCodeOpen = true">Я в отеле <b>→</b></button>
+      <div class="orange-panel cta-panel">
+        <button type="button" class="choice primary" @click="hotelCodeOpen = true">Я в отеле</button>
+      </div>
     </section>
 
     <section v-else class="screen">
-      <div class="safe-mark">⌑</div>
-      <p class="eyebrow">секретная точка</p>
-      <h2 class="success-title">Тише.<br><em>Сейф рядом.</em></h2>
+      <p class="eyebrow pad-eyebrow">секретная точка</p>
+      <h2 class="success-title">Тише.<br>Сейф рядом.</h2>
       <article class="glass-card safe-card">
         <p class="safe-lead">Ищи маленькую стальную дверцу там, где вещи остаются в безопасности до утра. Она умеет хранить не только ценности, но и подсказки.</p>
         <div class="safe-divider" />
