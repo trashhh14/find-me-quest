@@ -53,7 +53,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   position: absolute;
   inset: 0;
   opacity: .14;
-  background-image: radial-gradient(var(--orange) 1px, transparent 1.2px);
+  background-image: radial-gradient(var(--sage) 1px, transparent 1.2px);
   background-size: 18px 18px;
 }
 .plus, .spark {
@@ -64,9 +64,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   animation: twinkle 3.6s ease-in-out infinite;
 }
 .plus-a { top: 18%; left: 46%; animation-delay: .2s }
-.plus-b { top: 58%; right: 12%; color: var(--orange-deep); animation-delay: 1.1s }
+.plus-b { top: 58%; right: 12%; color: var(--sage); animation-delay: 1.1s }
 .plus-c { bottom: 28%; left: 8%; font-size: 14px; animation-delay: 1.8s }
-.spark { color: var(--butter); font-size: 14px }
+.spark { color: var(--sage); font-size: 14px }
 .spark-a { top: 12%; right: 28%; animation-delay: .6s }
 .spark-b { top: 42%; left: 16%; animation-delay: 2s }
 .topbar, .screen, .ticker { position: relative; z-index: 1 }
@@ -90,17 +90,17 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--orange);
+  color: var(--sage);
   font: 800 22px/1 var(--font-display);
   cursor: pointer;
 }
 .round-button:active { filter: brightness(.92) }
 .sparkle {
-  color: var(--cocoa);
-  background: var(--butter);
+  color: var(--snow);
+  background: var(--sage);
   border-radius: 50%;
   font-size: 15px;
-  box-shadow: 0 0 0 4px rgba(255, 211, 106, .35);
+  box-shadow: 0 0 0 4px rgba(109, 154, 134, .28);
   animation: pulseRing 2.4s ease-out infinite;
 }
 .progress-wrap { display: grid; gap: 5px; min-width: 0; text-align: center }
@@ -111,14 +111,14 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
 .safe-label,
 .found-input label {
   margin: 0;
-  color: var(--orange);
+  color: var(--sage);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: .16em;
   text-transform: uppercase;
 }
 .progress-wrap .brand {
-  color: var(--orange);
+  color: var(--sage);
   font-family: var(--font-display);
   font-size: 17px;
   font-weight: 800;
@@ -131,12 +131,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   margin: 0 auto;
   overflow: hidden;
   border-radius: 0;
-  background: rgba(255, 107, 61, .22);
+  background: rgba(109, 154, 134, .22);
 }
 .progress i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--orange), var(--butter));
+  background: linear-gradient(90deg, var(--peach-hot), var(--sage));
   transition: width 220ms ease;
 }
 
@@ -195,10 +195,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   height: 42px;
   right: 78px;
   top: 118px;
-  background: var(--butter);
+  background: var(--sage);
   animation-duration: 5s;
   animation-delay: -1s;
-  box-shadow: 0 8px 0 var(--cocoa);
+  box-shadow: 0 8px 0 var(--sage-deep);
 }
 .blob-ring {
   width: 58px;
@@ -206,16 +206,16 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   left: 48px;
   top: 22px;
   background: transparent;
-  border: 6px solid var(--cocoa);
+  border: 6px solid var(--sage);
   animation: spin 22s linear infinite;
 }
 .stamp {
   position: absolute;
   z-index: 2;
   padding: 7px 8px;
-  border: 1.5px dashed var(--cocoa);
-  background: var(--butter);
-  color: var(--cocoa);
+  border: 1.5px dashed var(--sage-deep);
+  background: var(--snow);
+  color: var(--sage-deep);
   font: 800 9px/1.15 var(--font-ui);
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -230,13 +230,13 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   width: min(88%, 320px);
   margin: 36px auto 0;
   overflow: visible;
-  color: var(--orange);
-  filter: drop-shadow(3px 3px 0 var(--cocoa));
+  color: var(--sage);
+  filter: drop-shadow(3px 3px 0 rgba(59, 42, 40, .18));
 }
 
 h1, h2, .hotel-card h3 {
   margin: 0;
-  color: var(--orange);
+  color: var(--sage);
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -.04em;
@@ -279,10 +279,10 @@ em { font-style: normal; color: var(--orange-deep) }
 .ticker {
   flex: 0 0 auto;
   overflow: hidden;
-  border-top: 1.5px solid var(--cocoa);
-  border-bottom: 1.5px solid var(--cocoa);
-  background: var(--butter);
-  color: var(--cocoa);
+  border-top: 1.5px solid rgba(109, 154, 134, .35);
+  border-bottom: 1.5px solid rgba(109, 154, 134, .35);
+  background: var(--snow);
+  color: var(--sage-deep);
 }
 .ticker-track {
   display: flex;
@@ -299,7 +299,7 @@ em { font-style: normal; color: var(--orange-deep) }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--orange);
+  background: var(--sage);
   flex: 0 0 auto;
 }
 .chip-row {
@@ -310,21 +310,22 @@ em { font-style: normal; color: var(--orange-deep) }
 }
 .chip {
   padding: 5px 8px;
-  border: 1.5px solid var(--cocoa);
-  background: var(--cocoa);
-  color: var(--cream);
+  border: 1.5px solid var(--sage);
+  background: var(--sage);
+  color: var(--snow);
   font: 800 10px/1 var(--font-ui);
   letter-spacing: .12em;
   text-transform: uppercase;
 }
 .chip-butter {
-  background: var(--butter);
-  color: var(--cocoa);
+  background: var(--peach-hot);
+  color: var(--ink);
+  border-color: var(--peach-hot);
 }
 .orange-panel {
   margin-top: auto;
-  background: var(--orange);
-  color: var(--white);
+  background: var(--snow);
+  color: var(--ink);
   padding: 28px 20px 32px;
   position: relative;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
@@ -353,7 +354,7 @@ em { font-style: normal; color: var(--orange-deep) }
 }
 .orange-panel h2,
 .orange-panel .panel-title {
-  color: var(--white);
+  color: var(--sage-deep);
   text-align: left;
   font-family: var(--font-display);
   font-size: clamp(30px, 8.5vw, 38px);
@@ -363,7 +364,7 @@ em { font-style: normal; color: var(--orange-deep) }
 }
 .panel-copy {
   margin: 0 0 18px;
-  color: rgba(255, 248, 245, .92);
+  color: var(--body);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.5;
@@ -381,10 +382,10 @@ em { font-style: normal; color: var(--orange-deep) }
   min-width: 0;
   padding: 12px 0;
   border: 0;
-  border-bottom: 1.5px solid rgba(255, 248, 245, .45);
+  border-bottom: 1.5px solid rgba(109, 154, 134, .28);
   border-radius: 0;
   background: transparent;
-  color: var(--white);
+  color: var(--ink);
   font: 800 15px/1.3 var(--font-ui);
   text-align: left;
   letter-spacing: .04em;
@@ -402,21 +403,21 @@ em { font-style: normal; color: var(--orange-deep) }
 .choice.primary {
   position: relative;
   overflow: hidden;
-  background: var(--cream);
-  color: var(--cocoa);
+  background: var(--sage);
+  color: var(--snow);
   border: 0;
   min-height: 54px;
   padding: 14px 16px;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: .08em;
-  box-shadow: 4px 4px 0 var(--cocoa);
+  box-shadow: 4px 4px 0 rgba(78, 124, 104, .45);
 }
 .choice.primary::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(110deg, transparent 20%, rgba(255, 211, 106, .55), transparent 80%);
+  background: linear-gradient(110deg, transparent 20%, rgba(255, 248, 244, .4), transparent 80%);
   transform: translateX(-130%);
   animation: shine 3.4s ease-in-out .8s infinite;
   pointer-events: none;
@@ -435,9 +436,9 @@ em { font-style: normal; color: var(--orange-deep) }
 .ghost-link {
   padding: 0;
   border: 0;
-  border-bottom: 1.5px solid var(--orange);
+  border-bottom: 1.5px solid var(--sage);
   background: none;
-  color: var(--orange);
+  color: var(--sage);
   font: 800 12px/1.2 var(--font-ui);
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -458,17 +459,17 @@ em { font-style: normal; color: var(--orange-deep) }
   gap: 5px;
   padding: 6px 9px;
   border-radius: 0;
-  background: var(--butter);
-  border: 1.5px solid var(--cocoa);
-  color: var(--cocoa);
+  background: var(--snow);
+  border: 1.5px solid var(--sage);
+  color: var(--sage-deep);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: .08em;
   text-transform: uppercase;
   white-space: nowrap;
-  box-shadow: 3px 3px 0 var(--cocoa);
+  box-shadow: 3px 3px 0 var(--sage);
 }
-.attempts strong { font-size: 18px; color: var(--orange-deep); font-family: var(--font-display) }
+.attempts strong { font-size: 18px; color: var(--sage-deep); font-family: var(--font-display) }
 
 .glass-card {
   width: 100%;
@@ -505,7 +506,7 @@ em { font-style: normal; color: var(--orange-deep) }
   background: var(--orange);
   border-radius: 36px 36px 0 0;
 }
-.question-card h2 { color: var(--white); text-align: left; margin-bottom: 8px }
+.question-card h2 { color: var(--sage-deep); text-align: left; margin-bottom: 8px }
 .question-card > p,
 .clue-text,
 .hotel-text,
@@ -518,7 +519,7 @@ em { font-style: normal; color: var(--orange-deep) }
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
-.question-card > p { color: rgba(255, 248, 245, .9); margin: 0 0 18px }
+.question-card > p { color: var(--body); margin: 0 0 18px }
 
 .mark,
 .map-pin,
@@ -533,10 +534,10 @@ em { font-style: normal; color: var(--orange-deep) }
   height: 56px;
   margin: 0 auto 14px;
   border-radius: 50%;
-  background: var(--butter);
-  color: var(--cocoa);
+  background: var(--sage);
+  color: var(--snow);
   font-size: 22px;
-  box-shadow: 4px 4px 0 var(--cocoa);
+  box-shadow: 4px 4px 0 var(--sage-deep);
 }
 
 .answer-field {
@@ -547,11 +548,11 @@ em { font-style: normal; color: var(--orange-deep) }
   min-width: 0;
   padding: 0 0 0 0;
   border: 0;
-  border-bottom: 2px solid rgba(255, 248, 245, .7);
+  border-bottom: 2px solid rgba(109, 154, 134, .35);
   border-radius: 0;
   background: transparent;
 }
-.question-card .answer-field { border-bottom-color: rgba(255,248,245,.7) }
+.question-card .answer-field { border-bottom-color: rgba(109, 154, 134, .4) }
 .clue-card .answer-field,
 .safe-card .answer-field,
 .hotel-code-card .answer-field {
@@ -565,12 +566,12 @@ em { font-style: normal; color: var(--orange-deep) }
   border: 0;
   outline: 0;
   background: transparent;
-  color: inherit;
-  font: 700 16px/1.3 var(--font-ui);
+  color: var(--ink);
+  font: italic 500 20px/1.3 var(--font-input);
 }
-.question-card .answer-field input { color: var(--white) }
-.question-card .answer-field input::placeholder { color: rgba(255,248,245,.6) }
-.answer-field input::placeholder { color: rgba(196, 91, 58, .55) }
+.question-card .answer-field input { color: var(--ink) }
+.question-card .answer-field input::placeholder { color: rgba(109, 154, 134, .55) }
+.answer-field input::placeholder { color: rgba(109, 154, 134, .5) }
 .answer-field button {
   display: grid;
   place-items: center;
@@ -579,8 +580,8 @@ em { font-style: normal; color: var(--orange-deep) }
   height: 42px;
   border: 0;
   border-radius: 50%;
-  background: var(--white);
-  color: var(--orange);
+  background: var(--sage);
+  color: var(--snow);
   font-size: 18px;
   font-weight: 800;
   cursor: pointer;
@@ -588,8 +589,8 @@ em { font-style: normal; color: var(--orange-deep) }
 .clue-card .answer-field button,
 .safe-card .answer-field button,
 .hotel-code-card .answer-field button {
-  background: var(--orange);
-  color: var(--white);
+  background: var(--sage);
+  color: var(--snow);
 }
 .answer-note, .found-note {
   min-height: 18px;
@@ -598,22 +599,22 @@ em { font-style: normal; color: var(--orange-deep) }
   font-size: 12px;
   font-weight: 800;
 }
-.question-card .answer-note { color: var(--white) }
+.question-card .answer-note { color: var(--sage-deep) }
 
-.quest-mark { display: flex; gap: 6px; justify-content: center; margin: 0; padding: 12px 0 10px; background: var(--orange) }
-.quest-mark span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,248,245,.45) }
-.quest-mark span:first-child { width: 22px; border-radius: 99px; background: var(--butter); animation: pulseDot 1.6s ease-in-out infinite }
+.quest-mark { display: flex; gap: 6px; justify-content: center; margin: 0; padding: 12px 0 10px; background: var(--snow) }
+.quest-mark span { width: 7px; height: 7px; border-radius: 50%; background: var(--peach-hot) }
+.quest-mark span:first-child { width: 22px; border-radius: 99px; background: var(--sage); animation: pulseDot 1.6s ease-in-out infinite }
 
-.success-title { margin: 10px 20px 16px; color: var(--orange) }
+.success-title { margin: 10px 20px 16px; color: var(--sage) }
 .cipher {
   margin: 8px 0 2px;
-  color: var(--white);
+  color: var(--sage-deep);
   font-family: var(--font-display);
   font-size: clamp(32px, 9vw, 42px);
   font-weight: 800;
   letter-spacing: .08em;
 }
-.cipher-sub { margin: 0; color: rgba(255,248,245,.8); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase }
+.cipher-sub { margin: 0; color: var(--sage); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase }
 .divider, .safe-divider {
   width: 48px;
   height: 3px;
@@ -638,12 +639,12 @@ em { font-style: normal; color: var(--orange-deep) }
   background: var(--peach);
   border-radius: 50%;
 }
-.clue-card .clue-label { color: rgba(255,248,245,.8) }
-.clue-card .clue-text { color: rgba(255,248,245,.92); text-align: left }
+.clue-card .clue-label { color: var(--sage) }
+.clue-card .clue-text { color: var(--body); text-align: left }
 .hint-button {
   margin-top: 18px;
   justify-content: flex-start;
-  color: var(--white);
+  color: var(--sage-deep);
   border-bottom: 0;
   text-transform: uppercase;
   letter-spacing: .1em;
@@ -652,17 +653,17 @@ em { font-style: normal; color: var(--orange-deep) }
 .found-input {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1.5px solid rgba(255,248,245,.35);
+  border-top: 1.5px solid rgba(109, 154, 134, .25);
   text-align: left;
   position: relative;
   z-index: 1;
 }
-.found-input label { display: block; margin-bottom: 8px; color: rgba(255,248,245,.8) }
-.found-input .answer-field { border-bottom-color: rgba(255,248,245,.7) }
-.found-input .answer-field input { color: var(--white) }
-.found-input .answer-field input::placeholder { color: rgba(255,248,245,.55) }
-.found-input .answer-field button { background: var(--white); color: var(--orange) }
-.found-input .found-note { color: var(--white) }
+.found-input label { display: block; margin-bottom: 8px; color: var(--sage) }
+.found-input .answer-field { border-bottom-color: rgba(109, 154, 134, .4) }
+.found-input .answer-field input { color: var(--ink) }
+.found-input .answer-field input::placeholder { color: rgba(109, 154, 134, .5) }
+.found-input .answer-field button { background: var(--sage); color: var(--snow) }
+.found-input .found-note { color: var(--sage-deep) }
 .soft-foot {
   margin: 16px 20px 18px;
   text-align: center;
@@ -675,7 +676,7 @@ em { font-style: normal; color: var(--orange-deep) }
   text-align: left;
   padding: 8px 20px 12px;
   background: transparent;
-  box-shadow: inset 4px 0 0 var(--butter);
+  box-shadow: inset 4px 0 0 var(--sage);
 }
 .letter-card p {
   margin: 0 0 12px;
@@ -685,7 +686,7 @@ em { font-style: normal; color: var(--orange-deep) }
   line-height: 1.65;
 }
 .letter-card .letter-greeting {
-  color: var(--orange);
+  color: var(--sage);
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 800;
@@ -693,8 +694,8 @@ em { font-style: normal; color: var(--orange-deep) }
 }
 .letter-sign {
   padding-top: 14px;
-  border-top: 1.5px solid var(--orange);
-  color: var(--orange);
+  border-top: 1.5px solid var(--sage);
+  color: var(--sage);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .12em;
@@ -704,8 +705,8 @@ em { font-style: normal; color: var(--orange-deep) }
 .rescue-button {
   justify-content: center;
   margin: 0;
-  background: var(--orange);
-  color: var(--white);
+  background: var(--sage);
+  color: var(--snow);
   border: 0;
   min-height: 56px;
   text-transform: uppercase;
@@ -736,7 +737,7 @@ em { font-style: normal; color: var(--orange-deep) }
   font-size: clamp(24px, 7vw, 32px);
   line-height: 1.1;
   overflow-wrap: anywhere;
-  color: var(--white);
+  color: var(--sage-deep);
   text-align: left;
 }
 .hotel-card {
@@ -745,9 +746,9 @@ em { font-style: normal; color: var(--orange-deep) }
   padding: 28px 20px 24px;
   position: relative;
 }
-.hotel-card .hotel-label { color: rgba(255,248,245,.8) }
-.hotel-address { margin: 0; color: var(--white); font-size: 14px; font-weight: 700; overflow-wrap: anywhere }
-.hotel-text { color: rgba(255,248,245,.9); text-align: left }
+.hotel-card .hotel-label { color: var(--sage) }
+.hotel-address { margin: 0; color: var(--ink); font-size: 14px; font-weight: 700; overflow-wrap: anywhere }
+.hotel-text { color: var(--body); text-align: left }
 .hotel-link {
   display: inline-flex;
   align-items: center;
@@ -757,15 +758,15 @@ em { font-style: normal; color: var(--orange-deep) }
   padding: 0 0 4px;
   border-radius: 0;
   background: transparent;
-  color: var(--white);
+  color: var(--sage-deep);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .14em;
   text-transform: uppercase;
   text-decoration: none;
-  border-bottom: 1.5px solid var(--white);
+  border-bottom: 1.5px solid var(--sage);
 }
-.hotel-card .divider { background: rgba(255,248,245,.4); margin: 18px 0 }
+.hotel-card .divider { background: var(--sage); margin: 18px 0 }
 
 .safe-card { text-align: left; padding: 12px 20px 20px }
 .safe-lead { margin: 0 }
@@ -834,11 +835,11 @@ em { font-style: normal; color: var(--orange-deep) }
   height: 32px;
   border: 0;
   border-radius: 0;
-  background: var(--butter);
-  color: var(--cocoa);
+  background: var(--sage);
+  color: var(--snow);
   font: 800 20px/1 var(--font-ui);
   cursor: pointer;
-  box-shadow: 3px 3px 0 var(--cocoa);
+  box-shadow: 3px 3px 0 var(--sage-deep);
 }
 .rescue-card, .hotel-code-card { text-align: left }
 .rescue-card > p:not(.eyebrow),
@@ -862,8 +863,8 @@ em { font-style: normal; color: var(--orange-deep) }
   max-width: calc(100% - 32px);
   padding: 11px 14px;
   border-radius: 0;
-  background: var(--orange);
-  color: var(--white);
+  background: var(--sage);
+  color: var(--snow);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .04em;
@@ -875,7 +876,6 @@ em { font-style: normal; color: var(--orange-deep) }
   transition: 180ms ease;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) }
-.toast { background: var(--cocoa); color: var(--butter) }
 
 @keyframes floaty {
   0%, 100% { transform: translateY(0) }
@@ -887,9 +887,9 @@ em { font-style: normal; color: var(--orange-deep) }
   50% { opacity: .8; transform: scale(1.1) }
 }
 @keyframes pulseRing {
-  0% { box-shadow: 0 0 0 0 rgba(255, 211, 106, .55) }
-  70% { box-shadow: 0 0 0 12px rgba(255, 211, 106, 0) }
-  100% { box-shadow: 0 0 0 0 rgba(255, 211, 106, 0) }
+  0% { box-shadow: 0 0 0 0 rgba(109, 154, 134, .45) }
+  70% { box-shadow: 0 0 0 12px rgba(109, 154, 134, 0) }
+  100% { box-shadow: 0 0 0 0 rgba(109, 154, 134, 0) }
 }
 @keyframes pulseDot {
   0%, 100% { transform: scale(1) }

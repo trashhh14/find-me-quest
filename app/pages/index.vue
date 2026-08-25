@@ -93,7 +93,7 @@ onMounted(() => {
     main.offClick(startQuest)
     if (value === 'intro') {
       main.setText('Да, готова')
-      main.setParams?.({ color: '#ff6b3d', text_color: '#fff8f5', is_active: true, is_visible: true })
+      main.setParams?.({ color: '#6d9a86', text_color: '#fff8f4', is_active: true, is_visible: true })
       main.show()
       main.onClick(startQuest)
     } else {

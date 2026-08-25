@@ -1,28 +1,32 @@
-/* Motion-poster palette: peach, orange, butter, cocoa. */
+/* Pink field, soft snow panels, sage accent. */
 :root {
-  --ink: #24110c;
-  --body: #5c2e22;
-  --muted: #c45b3a;
+  --ink: #3b2a28;
+  --body: #6a534e;
+  --muted: #b07a80;
   --page: #ffcfc4;
-  --page-deep: #ffb9ac;
-  --paper: #fff6ea;
-  --paper-2: #ffe3c4;
-  --orange: #ff6b3d;
-  --orange-deep: #ef4e22;
+  --page-deep: #ffb7a8;
+  --paper: #fff8f4;
+  --paper-2: #ffe8e2;
   --peach: #ffcfc4;
   --peach-hot: #ffb7a8;
-  --butter: #ffd36a;
-  --cocoa: #2a1410;
-  --cream: #fff8f0;
-  --white: #fff8f5;
-  --line: rgba(42, 20, 16, 0.14);
-  --shadow: 0 18px 40px rgba(42, 20, 16, 0.14);
+  --snow: #fff8f4;
+  --sage: #6d9a86;
+  --sage-deep: #4e7c68;
+  --orange: var(--snow);
+  --orange-deep: var(--sage-deep);
+  --butter: var(--sage);
+  --cocoa: var(--ink);
+  --cream: var(--snow);
+  --white: var(--ink);
+  --line: rgba(59, 42, 40, 0.12);
+  --shadow: 0 18px 40px rgba(59, 42, 40, 0.1);
   --font-ui: Outfit, system-ui, sans-serif;
   --font-display: Syne, Outfit, system-ui, sans-serif;
-  --rose: var(--orange);
-  --rose-deep: var(--orange-deep);
+  --font-input: Fraunces, "Times New Roman", serif;
+  --rose: var(--sage);
+  --rose-deep: var(--sage-deep);
   --blush: var(--peach-hot);
-  --gold: var(--butter);
-  --gold-deep: #e0a82e;
-  --seal: var(--orange-deep);
+  --gold: var(--sage);
+  --gold-deep: var(--sage-deep);
+  --seal: var(--sage-deep);
 }
