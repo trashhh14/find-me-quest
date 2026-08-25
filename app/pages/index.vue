@@ -106,9 +106,13 @@ onMounted(() => {
 <template>
   <main class="app-shell" :class="[`stage-${screen}`, { 'has-tg-main': hasTgMain && screen === 'intro' }]">
     <div class="sky" aria-hidden="true">
-      <i class="glow glow-one" />
-      <i class="glow glow-two" />
       <i class="grain" />
+      <i class="grid" />
+      <i class="plus plus-a">+</i>
+      <i class="plus plus-b">+</i>
+      <i class="plus plus-c">+</i>
+      <i class="spark spark-a">✦</i>
+      <i class="spark spark-b">✦</i>
     </div>
 
     <header class="topbar">
@@ -117,13 +121,23 @@ onMounted(() => {
         <span class="brand">найди меня</span>
         <div class="progress"><i :style="{ width: progress }" /></div>
       </div>
-      <div class="round-button sparkle" aria-hidden="true">●</div>
+      <div class="round-button sparkle" aria-hidden="true">✦</div>
     </header>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Сочи</span><i /><span>28 августа</span><i /><span>личный квест</span><i /><span>ящик 511</span><i /><span>маршрут</span><i /><span>найди меня</span><i />
+        <span>Сочи</span><i /><span>28 августа</span><i /><span>личный квест</span><i /><span>ящик 511</span><i /><span>маршрут</span><i /><span>найди меня</span><i />
+      </div>
+    </div>
 
     <section v-if="screen === 'intro'" class="screen">
       <div class="hero" aria-hidden="true">
         <i class="blob blob-tr" />
         <i class="blob blob-l" />
+        <i class="blob blob-y" />
+        <i class="blob blob-ring" />
+        <span class="stamp stamp-tr">Sochi · 28.08</span>
         <svg class="arch-svg" viewBox="0 0 320 150">
           <path id="title-arch" d="M18 128 Q160 8 302 128" fill="none" />
           <text fill="currentColor" font-size="30" font-weight="800" letter-spacing="3" font-family="Syne, Outfit, sans-serif">
@@ -137,6 +151,10 @@ onMounted(() => {
         <button type="button" class="ghost-link" @click="choose('no')">Не хочу</button>
       </div>
       <div class="orange-panel">
+        <div class="chip-row">
+          <span class="chip">этап 01</span>
+          <span class="chip chip-butter">3 попытки</span>
+        </div>
         <p class="panel-title">Готова?</p>
         <p class="panel-copy">Первый след уже ждёт. Три попытки — и точка на карте.</p>
         <button type="button" class="choice primary" @click="startQuest"><span>Да, готова</span></button>
@@ -151,6 +169,9 @@ onMounted(() => {
       <div class="hero hero-mini" aria-hidden="true">
         <i class="blob blob-tr" />
         <i class="blob blob-l" />
+        <i class="blob blob-y" />
+        <i class="blob blob-ring" />
+        <span class="stamp stamp-tr">точка 01</span>
       </div>
       <article class="glass-card question-card">
         <h2>Где я?</h2>
@@ -168,6 +189,10 @@ onMounted(() => {
       <p class="eyebrow pad-eyebrow">этап 01 пройден</p>
       <h2 class="success-title">Ты на верном<br>пути.</h2>
       <article class="glass-card clue-card">
+        <div class="chip-row">
+          <span class="chip">ящик</span>
+          <span class="chip chip-butter">511</span>
+        </div>
         <p class="clue-label">следующая координата</p>
         <p class="cipher">V · I · I</p>
         <p class="cipher-sub">пятьсот + одиннадцать</p>
@@ -205,6 +230,10 @@ onMounted(() => {
       <p class="eyebrow pad-eyebrow">добро пожаловать в сочи</p>
       <h2 class="success-title">Твоя новая<br>точка.</h2>
       <article class="glass-card hotel-card">
+        <div class="chip-row">
+          <span class="chip">сочи</span>
+          <span class="chip chip-butter">28–30.08</span>
+        </div>
         <p class="hotel-label">отель</p>
         <h3>8Авеню by Provence</h3>
         <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>

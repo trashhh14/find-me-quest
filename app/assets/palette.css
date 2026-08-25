@@ -1,25 +1,28 @@
-/* Motion-museum palette: peach, hot orange, graphic cuts. */
+/* Motion-poster palette: peach, orange, butter, cocoa. */
 :root {
   --ink: #24110c;
   --body: #5c2e22;
   --muted: #c45b3a;
   --page: #ffcfc4;
   --page-deep: #ffb9ac;
-  --paper: #ffe8e2;
-  --paper-2: #ffd7ce;
+  --paper: #fff6ea;
+  --paper-2: #ffe3c4;
   --orange: #ff6b3d;
   --orange-deep: #ef4e22;
   --peach: #ffcfc4;
   --peach-hot: #ffb7a8;
+  --butter: #ffd36a;
+  --cocoa: #2a1410;
+  --cream: #fff8f0;
   --white: #fff8f5;
-  --line: rgba(239, 78, 34, 0.18);
-  --shadow: 0 18px 40px rgba(239, 78, 34, 0.16);
+  --line: rgba(42, 20, 16, 0.14);
+  --shadow: 0 18px 40px rgba(42, 20, 16, 0.14);
   --font-ui: Outfit, system-ui, sans-serif;
   --font-display: Syne, Outfit, system-ui, sans-serif;
   --rose: var(--orange);
   --rose-deep: var(--orange-deep);
   --blush: var(--peach-hot);
-  --gold: var(--orange);
-  --gold-deep: var(--orange-deep);
+  --gold: var(--butter);
+  --gold-deep: #e0a82e;
   --seal: var(--orange-deep);
 }
