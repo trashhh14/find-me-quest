@@ -64,14 +64,14 @@ function checkAnswer() {
 function addAttempts() { attempts.value = 100; storageSet('questAttempts', '100'); answerNote.value = 'Вот так лучше. Дыши — и пробуй снова.'; rescueOpen.value = false }
 async function submitFound() {
   if (!foundInput.value.trim()) { foundNote.value = 'Введи код, который обведён на билете.'; return }
-  if (foundInput.value.trim() !== '12345') { foundNote.value = 'Не похоже. Проверь цифры на билете ещё раз.'; return }
+  if (foundInput.value.trim() !== '88346') { foundNote.value = 'Не похоже. Проверь цифры на билете ещё раз.'; return }
   storageSet('questMailboxFound', foundInput.value.trim())
   storageSet('questTicketsUnlocked', 'true')
   foundNote.value = 'Верно. Открываю твоё письмо…'
   window.setTimeout(() => setScreen('letter'), 600)
 }
 function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
-function checkSafeCode() { if (safeCode.value.trim() !== '51234') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
+function checkSafeCode() { if (safeCode.value.trim() !== '518346') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
 const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next']
 const photoBase = useRuntimeConfig().app.baseURL
 const photo = (name: string) => `${photoBase}us/${name}`.replace(/([^:])\/{2,}/g, '$1/')
@@ -174,8 +174,8 @@ onMounted(() => {
       <article class="card">
         <p class="meta">следующая координата</p>
         <p class="cipher">V · I · I</p>
-        <p class="cipher-sub">пятьсот + одиннадцать</p>
-        <p>Там, где письма ждут своих историй, ищи дверцу с этим номером. Она знает, куда идти дальше.</p>
+        <p class="cipher-sub">не семь</p>
+        <p>Не складывай римские. Прочитай их как три отдельные цифры — и найди это число в подъезде, на узкой железной дверце в ряду таких же. У каждой свой маленький рот: туда бросают то, что должно дойти без слов. В одной из них — конверт с билетами.</p>
         <label class="field">
           <input id="foundInput" v-model="foundInput" type="text" inputmode="numeric" placeholder="Код с билетов" autocomplete="off" @focus="scrollField" @keyup.enter="submitFound">
           <button type="button" aria-label="Отправить" @click="submitFound">→</button>
@@ -227,7 +227,7 @@ onMounted(() => {
           <li>Не меняй порядок.</li>
         </ol>
         <label class="field">
-          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="5" placeholder="Код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
+          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="6" placeholder="Код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
           <button type="button" aria-label="Открыть сейф" @click="checkSafeCode">→</button>
         </label>
         <p class="note" role="status">{{ safeCodeNote }}</p>
@@ -239,9 +239,9 @@ onMounted(() => {
       <article class="card modal-card">
         <button type="button" class="modal-close" aria-label="Закрыть" @click="hintOpen = false">×</button>
         <p class="kicker">подсказка</p>
-        <p class="card-title">Ищи эту дверцу</p>
+        <p class="card-title">Вот она</p>
         <img src="/assets/mailbox-511.png" alt="Почтовый ящик с номером 511">
-        <p>Номер должен быть совсем рядом. Ты справишься.</p>
+        <p>Не квартира. Ячейка в стене. Номер уже у тебя.</p>
       </article>
     </div>
 
