@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Screen = 'intro' | 'question' | 'clue' | 'letter' | 'arrival' | 'next'
+type Screen = 'intro' | 'question' | 'clue' | 'letter' | 'arrival' | 'next' | 'finale'
 const screen = ref<Screen>('intro')
 const attempts = ref(3)
 const answer = ref('')
@@ -9,6 +9,7 @@ const foundNote = ref('')
 const hotelCode = ref('')
 const hotelCodeNote = ref('')
 const hotelCodeOpen = ref(false)
+const elephantHintOpen = ref(false)
 const safeCode = ref('')
 const safeCodeNote = ref('')
 const toast = ref('')
@@ -34,7 +35,8 @@ const progress = computed(() => ({
   clue: '46%',
   letter: '64%',
   arrival: '82%',
-  next: '100%',
+  next: '90%',
+  finale: '100%',
 }[screen.value]))
 const attemptsLabel = computed(() => `${attempts.value} ${attempts.value === 1 ? 'попытка' : attempts.value < 5 ? 'попытки' : 'попыток'}`)
 function storageGet(key: string) {
@@ -74,7 +76,7 @@ function checkHotelCode() {
   const normalized = hotelCode.value.trim().toLocaleLowerCase('ru-RU').replace(/ё/g, 'е').replace(/[^а-я]/g, '')
   if (!normalized) { hotelCodeNote.value = 'Напиши ответ — я жду.'; return }
   if (!normalized.includes('слон')) { hotelCodeNote.value = 'Не то. Вспомни, к кому мы ездили в тот день.'; return }
-  hotelCodeOpen.value = false
+  closeHotelGate()
   storageSet('questHotelUnlocked', 'true')
   setScreen('next')
 }
@@ -100,8 +102,9 @@ function checkSafeCode() {
   }
   storageSet('questSafeOpened', 'true')
   safeCodeNote.value = 'Верно. Открой сейф этим кодом — следующая подсказка уже внутри. ✦'
+  window.setTimeout(() => setScreen('finale'), 900)
 }
-const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next']
+const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next', 'finale']
 type PolaroidShot = {
   src: string
   focal: string
@@ -114,6 +117,7 @@ const PHOTO_POOL: Record<Screen, string[]> = {
   letter: ['ruzhik.jpg', 'look.jpg', 'tea.jpg'],
   arrival: ['fountain.jpg', 'carousel.jpg', 'cafe.jpg'],
   next: ['kiss.jpg', 'cafe.jpg', 'mountains.jpg'],
+  finale: ['look.jpg', 'kiss.jpg', 'carousel.jpg'],
 }
 const photoBase = useRuntimeConfig().app.baseURL
 const photo = (name: string) => `${photoBase}us/${name}`.replace(/([^:])\/{2,}/g, '$1/')
@@ -157,6 +161,7 @@ const PHOTO_LAYOUTS: Record<Screen, { count: 1 | 2; order: 0 | 4; place: 'left' 
   letter: { count: 1, order: 4, place: 'center' },
   arrival: { count: 2, order: 0, place: 'stagger-b' },
   next: { count: 2, order: 4, place: 'stagger-a' },
+  finale: { count: 2, order: 0, place: 'stagger-b' },
 }
 const photoLayout = computed(() => {
   const rand = seededRandom(`polaroid:${screen.value}`)
@@ -183,8 +188,16 @@ const photoLayout = computed(() => {
     ],
   }
 })
+function openHotelGate() {
+  hotelCodeOpen.value = true
+}
+function closeHotelGate() {
+  elephantHintOpen.value = false
+  hotelCodeOpen.value = false
+}
 function goBack() {
-  if (hotelCodeOpen.value) { hotelCodeOpen.value = false; return }
+  if (elephantHintOpen.value) { elephantHintOpen.value = false; return }
+  if (hotelCodeOpen.value) { closeHotelGate(); return }
   if (hintOpen.value) { hintOpen.value = false; return }
   if (rescueOpen.value) { rescueOpen.value = false; return }
   const index = SCREEN_ORDER.indexOf(screen.value)
@@ -195,13 +208,17 @@ function startQuest() { choose('yes') }
 onMounted(() => {
   attempts.value = Number(storageGet('questAttempts') || 3)
   const saved = storageGet('questScreen') as Screen | null
-  if (storageGet('questTicketsUnlocked') === 'true' && ['letter', 'arrival', 'next'].includes(saved || '')) screen.value = saved!
+  if (storageGet('questTicketsUnlocked') === 'true' && ['letter', 'arrival', 'next', 'finale'].includes(saved || '')) screen.value = saved!
   else if (storageGet('questTicketsUnlocked') === 'true') screen.value = 'letter'
   else if (storageGet('questSolved') === 'true') screen.value = 'clue'
   else if (saved === 'question') screen.value = 'question'
   foundInput.value = storageGet('questMailboxFound') || ''
   if (storageGet('questSafeOpened') === 'true') safeCodeNote.value = 'Верно. Открой сейф этим кодом — следующая подсказка уже внутри. ✦'
-  if (storageGet('questHotelUnlocked') === 'true' && saved === 'next') screen.value = 'next'
+  if (storageGet('questHotelUnlocked') === 'true' && (saved === 'next' || saved === 'finale')) screen.value = saved!
+  if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+    const preview = new URLSearchParams(location.search).get('screen') as Screen | null
+    if (preview && SCREEN_ORDER.includes(preview)) screen.value = preview
+  }
   document.addEventListener('visibilitychange', onClockVisible)
   watch([screen, safeUnlocked], syncSafeClock, { immediate: true })
 })
@@ -278,9 +295,9 @@ onUnmounted(() => {
       <div class="ornament" aria-hidden="true">✦</div>
       <article class="card">
         <p class="meta">следующая координата</p>
-        <p class="cipher">V · I · I</p>
-        <p class="cipher-sub">не семь</p>
-        <p>Не складывай римские. Прочитай их как три отдельные цифры — и найди это число в подъезде, на узкой железной дверце в ряду таких же. У каждой свой маленький рот: туда бросают то, что должно дойти без слов. В одной из них — конверт с билетами.</p>
+        <p class="cipher">511</p>
+        <p class="cipher-sub">первый этаж</p>
+        <p>Спустись на первый этаж. Среди почтовых ящиков найди номер 511 — там тебя ждёт подсказка.</p>
         <label class="field">
           <input id="foundInput" v-model="foundInput" type="text" inputmode="numeric" placeholder="Код с билетов" autocomplete="off" @focus="scrollField" @keyup.enter="submitFound">
           <button type="button" aria-label="Отправить" @click="submitFound">→</button>
@@ -296,9 +313,9 @@ onUnmounted(() => {
       <div class="ornament" aria-hidden="true">✦</div>
       <article class="card">
         <p class="card-title">Привет, мышка!</p>
-        <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу сказать: много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
-        <p>Ружик в надёжных руках, можешь о нём не беспокоиться. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
-        <p>Едь, а всю дальнейшую информацию ты получишь по приезде.</p>
+        <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу предупредить, много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
+        <p>К сожалению, Ружика я не смог увезти, поэтому тебе нужно самой отвезти его на передержку. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
+        <p>Езжай, а всю дальнейшую информацию ты получишь по приезде.</p>
         <p class="sign">Твой маршрут</p>
         <button type="button" class="btn" @click="setScreen('arrival')">Я доехала</button>
       </article>
@@ -314,11 +331,11 @@ onUnmounted(() => {
         <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>
         <p>Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
         <a class="btn-ghost btn" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель</a>
-        <button type="button" class="btn" @click="hotelCodeOpen = true">Я в отеле</button>
+        <button type="button" class="btn" @click="openHotelGate">Я в отеле</button>
       </article>
       </template>
 
-      <template v-else>
+      <template v-else-if="screen === 'next'">
       <template v-if="!safeUnlocked">
       <p class="kicker">ещё не время</p>
       <h1 class="title">Утром в девять.</h1>
@@ -362,6 +379,18 @@ onUnmounted(() => {
       </article>
       </template>
       </template>
+
+      <template v-else>
+      <p class="kicker">вечер</p>
+      <h1 class="title">До встречи.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <img class="story-photo" :src="photo('pier.png')" alt="Пирс возле ресторана Sanremo">
+        <p>Хоть я и уверен, что ты прекрасно помнишь тот момент с запуском фонарика, я не очень уверен в твоих поисковых способностях. Тот пирс был возле ресторана Sanremo, на фото указатель!</p>
+        <p>Сегодня у тебя день «для себя»: погуляй по любимому Сочи, насладись пальмами, атмосферой и напитайся хорошей энергией. Я с нетерпением жду нашей встречи в 23:00. Очень тебя люблю и скучаю, твой Кош.</p>
+        <p class="sign">P.s. у нас ещё будет денёк погулять по Сочи вместе.</p>
+      </article>
+      </template>
     </section>
 
     <div class="modal" :class="{ show: hintOpen }" :aria-hidden="!hintOpen">
@@ -369,9 +398,7 @@ onUnmounted(() => {
       <article class="card modal-card">
         <button type="button" class="modal-close" aria-label="Закрыть" @click="hintOpen = false">×</button>
         <p class="kicker">подсказка</p>
-        <p class="card-title">Вот она</p>
-        <img src="/assets/mailbox-511.png" alt="Почтовый ящик с номером 511">
-        <p>Не квартира. Ячейка в стене. Номер уже у тебя.</p>
+        <p class="card-title">Убери повторяющиеся цифры.</p>
       </article>
     </div>
 
@@ -387,18 +414,28 @@ onUnmounted(() => {
       </article>
     </div>
 
-    <div class="modal" :class="{ show: hotelCodeOpen }" :aria-hidden="!hotelCodeOpen">
-      <div class="modal-backdrop" @click="hotelCodeOpen = false" />
+    <div class="modal hotel-gate" :class="{ show: hotelCodeOpen }" :aria-hidden="!hotelCodeOpen">
+      <div class="modal-backdrop is-blur" @click="closeHotelGate" />
       <article class="card modal-card">
-        <button type="button" class="modal-close" aria-label="Закрыть" @click="hotelCodeOpen = false">×</button>
+        <button type="button" class="modal-close" aria-label="Закрыть" @click="closeHotelGate">×</button>
         <p class="kicker">в отеле</p>
-        <p class="card-title">К кому мы ездили, когда сделали это фото?</p>
-        <img :src="photo('fountain.jpg')" alt="То самое фото">
+        <p>Мне нужно убедиться, что это действительно так.</p>
+        <p class="card-title">К кому мы ездили, когда сделали фото, которое ты нашла в конверте?</p>
         <label class="field">
           <input v-model="hotelCode" type="text" placeholder="Ответ" autocomplete="off" @focus="scrollField" @keyup.enter="checkHotelCode">
           <button type="button" aria-label="Проверить код" @click="checkHotelCode">→</button>
         </label>
         <p class="note" role="status">{{ hotelCodeNote }}</p>
+        <button type="button" class="btn-ghost btn" @click="elephantHintOpen = true">Подсказка</button>
+      </article>
+    </div>
+
+    <div class="modal hotel-hint" :class="{ show: elephantHintOpen }" :aria-hidden="!elephantHintOpen">
+      <div class="modal-backdrop is-blur" @click="elephantHintOpen = false" />
+      <article class="card modal-card">
+        <button type="button" class="modal-close" aria-label="Закрыть" @click="elephantHintOpen = false">×</button>
+        <p class="kicker">подсказка</p>
+        <img src="/assets/elephant-hint.jpg" alt="Подсказка">
       </article>
     </div>
 

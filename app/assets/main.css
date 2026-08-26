@@ -230,6 +230,13 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   text-align: center;
   color: var(--body);
 }
+.story-photo {
+  width: 100%;
+  height: auto;
+  margin: 0 0 14px;
+  object-fit: contain;
+  border-radius: 18px;
+}
 
 .choices {
   display: grid;
@@ -412,7 +419,19 @@ a.btn { text-decoration: none }
   margin: auto;
 }
 .modal.show { display: flex }
+.hotel-hint { z-index: 10 }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(74, 44, 58, .35) }
+.modal-backdrop.is-blur {
+  background: rgba(74, 44, 58, .28);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+}
+.app-shell:has(.hotel-gate.show) .topbar,
+.app-shell:has(.hotel-gate.show) .screen {
+  filter: blur(12px);
+  transform: scale(1.02);
+  pointer-events: none;
+}
 .modal-card {
   position: relative;
   z-index: 1;
