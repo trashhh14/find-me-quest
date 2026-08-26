@@ -1,6 +1,17 @@
 {
   "framework": null,
-  "installCommand": "echo skip",
-  "buildCommand": "echo skip",
-  "outputDirectory": "public"
+  "installCommand": "npm ci",
+  "buildCommand": "npx nuxt generate",
+  "outputDirectory": ".output/public",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }
