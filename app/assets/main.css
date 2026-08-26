@@ -39,10 +39,6 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
     radial-gradient(90% 50% at 110% 90%, rgba(226, 122, 163, .45), transparent 48%),
     linear-gradient(165deg, #ffd9e8 0%, #f4a7c3 46%, #e98bb0 100%);
 }
-.app-shell.has-tg-main {
-  --pad-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + var(--tg-safe-bottom, 0px));
-}
-
 .topbar {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) 64px;
@@ -342,6 +338,36 @@ a.btn { text-decoration: none }
   letter-spacing: .1em;
   text-transform: uppercase;
   text-align: center;
+}
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 4px 0 14px;
+}
+.countdown-cell {
+  display: grid;
+  gap: 4px;
+  padding: 12px 4px 10px;
+  border-radius: 18px;
+  background: rgba(255, 247, 251, .9);
+  border: 1px solid rgba(226, 122, 163, .22);
+  text-align: center;
+}
+.countdown-value {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(22px, 6vw, 30px);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1;
+}
+.countdown-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
 }
 .hotel-name {
   margin: 0 0 6px;

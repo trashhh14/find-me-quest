@@ -14,8 +14,20 @@ const safeCodeNote = ref('')
 const toast = ref('')
 const hintOpen = ref(false)
 const rescueOpen = ref(false)
-const hasTgMain = ref(false)
+const SAFE_UNLOCK_AT = Date.parse('2026-08-29T09:00:00+03:00')
+const nowMs = ref(Date.now())
+const safeUnlocked = computed(() => nowMs.value >= SAFE_UNLOCK_AT)
+const countdown = computed(() => {
+  const sec = Math.max(0, Math.floor((SAFE_UNLOCK_AT - nowMs.value) / 1000))
+  return {
+    days: String(Math.floor(sec / 86400)).padStart(2, '0'),
+    hours: String(Math.floor((sec % 86400) / 3600)).padStart(2, '0'),
+    minutes: String(Math.floor((sec % 3600) / 60)).padStart(2, '0'),
+    seconds: String(sec % 60).padStart(2, '0'),
+  }
+})
 let toastTimer: ReturnType<typeof setTimeout> | undefined
+let clockTimer: ReturnType<typeof setInterval> | undefined
 const progress = computed(() => ({
   intro: '12%',
   question: '28%',
@@ -30,18 +42,6 @@ function storageGet(key: string) {
 }
 function storageSet(key: string, value: string) {
   try { localStorage.setItem(key, value) } catch {}
-}
-function telegramApp() {
-  return (window as Window & { Telegram?: { WebApp?: {
-    MainButton: {
-      setText: (text: string) => void
-      setParams?: (params: Record<string, string | boolean>) => void
-      show: () => void
-      hide: () => void
-      onClick: (callback: () => void) => void
-      offClick: (callback: () => void) => void
-    }
-  } } }).Telegram?.WebApp
 }
 function setScreen(next: Screen) {
   screen.value = next
@@ -70,8 +70,37 @@ async function submitFound() {
   foundNote.value = 'Верно. Открываю твоё письмо…'
   window.setTimeout(() => setScreen('letter'), 600)
 }
-function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
-function checkSafeCode() { if (safeCode.value.trim() !== '518346') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
+function checkHotelCode() {
+  const normalized = hotelCode.value.trim().toLocaleLowerCase('ru-RU').replace(/ё/g, 'е').replace(/[^а-я]/g, '')
+  if (!normalized) { hotelCodeNote.value = 'Напиши ответ — я жду.'; return }
+  if (!normalized.includes('слон')) { hotelCodeNote.value = 'Не то. Вспомни, к кому мы ездили в тот день.'; return }
+  hotelCodeOpen.value = false
+  storageSet('questHotelUnlocked', 'true')
+  setScreen('next')
+}
+function tickClock() { nowMs.value = Date.now() }
+function syncSafeClock() {
+  tickClock()
+  const waiting = screen.value === 'next' && nowMs.value < SAFE_UNLOCK_AT
+  if (waiting && !clockTimer) clockTimer = setInterval(tickClock, 250)
+  if (!waiting && clockTimer) {
+    clearInterval(clockTimer)
+    clockTimer = undefined
+  }
+}
+function onClockVisible() {
+  if (document.visibilityState === 'visible') syncSafeClock()
+}
+function checkSafeCode() {
+  const digits = safeCode.value.replace(/\D/g, '')
+  if (!digits) { safeCodeNote.value = 'Напиши код — я жду.'; return }
+  if (digits !== '010623' && digits !== '01062023') {
+    safeCodeNote.value = 'Не то. Вспомни день, когда всё началось.'
+    return
+  }
+  storageSet('questSafeOpened', 'true')
+  safeCodeNote.value = 'Верно. Открой сейф этим кодом — следующая подсказка уже внутри. ✦'
+}
 const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next']
 type PolaroidShot = {
   src: string
@@ -171,25 +200,22 @@ onMounted(() => {
   else if (storageGet('questSolved') === 'true') screen.value = 'clue'
   else if (saved === 'question') screen.value = 'question'
   foundInput.value = storageGet('questMailboxFound') || ''
-  const main = telegramApp()?.MainButton
-  hasTgMain.value = Boolean(main)
-  if (!main) return
-  watch(screen, (value) => {
-    main.offClick(startQuest)
-    if (value === 'intro') {
-      main.setText('Да, готова')
-      main.setParams?.({ color: '#e27aa3', text_color: '#fff7fb', is_active: true, is_visible: true })
-      main.show()
-      main.onClick(startQuest)
-    } else {
-      main.hide()
-    }
-  }, { immediate: true })
+  if (storageGet('questSafeOpened') === 'true') safeCodeNote.value = 'Верно. Открой сейф этим кодом — следующая подсказка уже внутри. ✦'
+  if (storageGet('questHotelUnlocked') === 'true' && saved === 'next') screen.value = 'next'
+  document.addEventListener('visibilitychange', onClockVisible)
+  watch([screen, safeUnlocked], syncSafeClock, { immediate: true })
+})
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', onClockVisible)
+  if (clockTimer) {
+    clearInterval(clockTimer)
+    clockTimer = undefined
+  }
 })
 </script>
 
 <template>
-  <main class="app-shell" :class="[`stage-${screen}`, { 'has-tg-main': hasTgMain && screen === 'intro' }]">
+  <main class="app-shell" :class="`stage-${screen}`">
     <header class="topbar">
       <button v-if="screen !== 'intro'" type="button" class="back-button" aria-label="Назад" @click="goBack">назад</button>
       <span v-else class="back-spacer" />
@@ -293,24 +319,48 @@ onMounted(() => {
       </template>
 
       <template v-else>
-      <p class="kicker">секретная точка</p>
-      <h1 class="title">Тише. Сейф рядом.</h1>
+      <template v-if="!safeUnlocked">
+      <p class="kicker">ещё не время</p>
+      <h1 class="title">Утром в девять.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
       <article class="card">
-        <p>Ищи маленькую стальную дверцу там, где вещи остаются в безопасности до утра. Она умеет хранить не только ценности, но и подсказки.</p>
-        <p class="meta">кодовая головоломка</p>
-        <p>Вспомни номер дверцы с письмами и цифры, которые были обведены на билетах.</p>
-        <ol class="list">
-          <li>Напиши оба числа подряд.</li>
-          <li>Убери все повторяющиеся цифры, но первую встречу каждой оставь.</li>
-          <li>Не меняй порядок.</li>
-        </ol>
+        <p>Эта подсказка откроется сама, ровно в <strong>09:00 по Москве 29 августа</strong>.</p>
+        <div class="countdown" aria-live="polite">
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ countdown.days }}</span>
+            <span class="countdown-label">дн</span>
+          </div>
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ countdown.hours }}</span>
+            <span class="countdown-label">ч</span>
+          </div>
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ countdown.minutes }}</span>
+            <span class="countdown-label">мин</span>
+          </div>
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ countdown.seconds }}</span>
+            <span class="countdown-label">сек</span>
+          </div>
+        </div>
+        <p>Пока расположись в номере. В нужный момент страница откроется сама — ничего нажимать не нужно.</p>
+      </article>
+      </template>
+      <template v-else>
+      <p class="kicker">в номере</p>
+      <h1 class="title">Сейф рядом.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p>В комнате есть сейф. Найди его — следующая подсказка уже внутри.</p>
+        <p class="meta">код</p>
+        <p class="card-title">Код — день, когда всё началось.</p>
         <label class="field">
-          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="6" placeholder="Код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
-          <button type="button" aria-label="Открыть сейф" @click="checkSafeCode">→</button>
+          <input v-model="safeCode" type="text" inputmode="numeric" maxlength="10" placeholder="Код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
+          <button type="button" aria-label="Проверить код" @click="checkSafeCode">→</button>
         </label>
         <p class="note" role="status">{{ safeCodeNote }}</p>
       </article>
+      </template>
       </template>
     </section>
 
@@ -342,10 +392,10 @@ onMounted(() => {
       <article class="card modal-card">
         <button type="button" class="modal-close" aria-label="Закрыть" @click="hotelCodeOpen = false">×</button>
         <p class="kicker">в отеле</p>
-        <p class="card-title">Введи кодовое слово.</p>
-        <p>Оно приведёт тебя к следующей подсказке.</p>
+        <p class="card-title">К кому мы ездили, когда сделали это фото?</p>
+        <img :src="photo('fountain.jpg')" alt="То самое фото">
         <label class="field">
-          <input v-model="hotelCode" type="text" placeholder="Кодовое слово" autocomplete="off" @focus="scrollField" @keyup.enter="checkHotelCode">
+          <input v-model="hotelCode" type="text" placeholder="Ответ" autocomplete="off" @focus="scrollField" @keyup.enter="checkHotelCode">
           <button type="button" aria-label="Проверить код" @click="checkHotelCode">→</button>
         </label>
         <p class="note" role="status">{{ hotelCodeNote }}</p>

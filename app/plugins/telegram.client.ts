@@ -1,9 +1,13 @@
+type TelegramButton = { hide: () => void }
 type TelegramWebApp = {
   ready: () => void
   expand: () => void
   disableVerticalSwipes?: () => void
   setHeaderColor?: (color: string) => void
   setBackgroundColor?: (color: string) => void
+  MainButton?: TelegramButton
+  SecondaryButton?: TelegramButton
+  BottomButton?: TelegramButton
   viewportStableHeight?: number
   viewportHeight?: number
   safeAreaInset?: { top?: number; bottom?: number }
@@ -30,6 +34,9 @@ export default defineNuxtPlugin(() => {
   telegram.disableVerticalSwipes?.()
   telegram.setHeaderColor?.('#f4a7c3')
   telegram.setBackgroundColor?.('#f4a7c3')
+  telegram.MainButton?.hide()
+  telegram.SecondaryButton?.hide()
+  telegram.BottomButton?.hide()
   telegram.onEvent?.('viewportChanged', applyViewport)
   telegram.onEvent?.('safeAreaChanged', applyViewport)
   telegram.onEvent?.('contentSafeAreaChanged', applyViewport)
