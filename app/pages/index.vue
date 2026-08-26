@@ -15,18 +15,22 @@ const safeCodeNote = ref('')
 const toast = ref('')
 const hintOpen = ref(false)
 const rescueOpen = ref(false)
+const HOTEL_UNLOCK_AT = Date.parse('2026-08-29T01:00:00+03:00')
 const SAFE_UNLOCK_AT = Date.parse('2026-08-29T09:00:00+03:00')
 const nowMs = ref(Date.now())
+const hotelUnlocked = computed(() => nowMs.value >= HOTEL_UNLOCK_AT)
 const safeUnlocked = computed(() => nowMs.value >= SAFE_UNLOCK_AT)
-const countdown = computed(() => {
-  const sec = Math.max(0, Math.floor((SAFE_UNLOCK_AT - nowMs.value) / 1000))
+function makeCountdown(target: number) {
+  const sec = Math.max(0, Math.floor((target - nowMs.value) / 1000))
   return {
     days: String(Math.floor(sec / 86400)).padStart(2, '0'),
     hours: String(Math.floor((sec % 86400) / 3600)).padStart(2, '0'),
     minutes: String(Math.floor((sec % 3600) / 60)).padStart(2, '0'),
     seconds: String(sec % 60).padStart(2, '0'),
   }
-})
+}
+const hotelCountdown = computed(() => makeCountdown(HOTEL_UNLOCK_AT))
+const countdown = computed(() => makeCountdown(SAFE_UNLOCK_AT))
 let toastTimer: ReturnType<typeof setTimeout> | undefined
 let clockTimer: ReturnType<typeof setInterval> | undefined
 const progress = computed(() => ({
@@ -83,7 +87,9 @@ function checkHotelCode() {
 function tickClock() { nowMs.value = Date.now() }
 function syncSafeClock() {
   tickClock()
-  const waiting = screen.value === 'next' && nowMs.value < SAFE_UNLOCK_AT
+  const waiting =
+    (screen.value === 'arrival' && nowMs.value < HOTEL_UNLOCK_AT) ||
+    (screen.value === 'next' && nowMs.value < SAFE_UNLOCK_AT)
   if (waiting && !clockTimer) clockTimer = setInterval(tickClock, 250)
   if (!waiting && clockTimer) {
     clearInterval(clockTimer)
@@ -220,7 +226,7 @@ onMounted(() => {
     if (preview && SCREEN_ORDER.includes(preview)) screen.value = preview
   }
   document.addEventListener('visibilitychange', onClockVisible)
-  watch([screen, safeUnlocked], syncSafeClock, { immediate: true })
+  watch([screen, hotelUnlocked, safeUnlocked], syncSafeClock, { immediate: true })
 })
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', onClockVisible)
@@ -322,6 +328,34 @@ onUnmounted(() => {
       </template>
 
       <template v-else-if="screen === 'arrival'">
+      <template v-if="!hotelUnlocked">
+      <p class="kicker">ещё не время</p>
+      <h1 class="title">Ночью в час.</h1>
+      <div class="ornament" aria-hidden="true">✦</div>
+      <article class="card">
+        <p>Эта подсказка откроется сама, ровно в <strong>01:00 по Москве 29 августа</strong>.</p>
+        <div class="countdown" aria-live="polite">
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ hotelCountdown.days }}</span>
+            <span class="countdown-label">дн</span>
+          </div>
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ hotelCountdown.hours }}</span>
+            <span class="countdown-label">ч</span>
+          </div>
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ hotelCountdown.minutes }}</span>
+            <span class="countdown-label">мин</span>
+          </div>
+          <div class="countdown-cell">
+            <span class="countdown-value">{{ hotelCountdown.seconds }}</span>
+            <span class="countdown-label">сек</span>
+          </div>
+        </div>
+        <p>Пока доедь. В нужный момент страница откроется сама — ничего нажимать не нужно.</p>
+      </article>
+      </template>
+      <template v-else>
       <p class="kicker">добро пожаловать в сочи</p>
       <h1 class="title">Твоя новая точка.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -333,6 +367,7 @@ onUnmounted(() => {
         <a class="btn-ghost btn" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель</a>
         <button type="button" class="btn" @click="openHotelGate">Я в отеле</button>
       </article>
+      </template>
       </template>
 
       <template v-else-if="screen === 'next'">

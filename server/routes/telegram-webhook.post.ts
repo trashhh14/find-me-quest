@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const update = await readBody<TelegramUpdate>(event)
   const chatId = update.message?.chat.id
   const webAppBase = (config.webAppUrl || 'https://trashhh14.github.io/find-me-quest/').replace(/\/?$/, '/')
-  const webAppUrl = `${webAppBase}?v=202608262`
+  const webAppUrl = `${webAppBase}?v=202608263`
   if (!isStartCommand(update.message?.text) || !chatId || !config.botToken) return { ok: true }
   await $fetch(`https://api.telegram.org/bot${config.botToken}/sendPhoto`, {
     method: 'POST',

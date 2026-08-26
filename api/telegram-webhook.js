@@ -1,5 +1,5 @@
 const WEB_APP_BASE = (process.env.NUXT_WEB_APP_URL || 'https://trashhh14.github.io/find-me-quest/').replace(/\/?$/, '/')
-const WEB_APP = `${WEB_APP_BASE}?v=202608262`
+const WEB_APP = `${WEB_APP_BASE}?v=202608263`
 const TOKEN = process.env.NUXT_BOT_TOKEN
 const PHOTO_URL = `${WEB_APP_BASE}us/kiss.jpg`
 const CAPTION = 'Я уехал и оставил для тебя маршрут. Готова меня найти?'
