@@ -73,16 +73,87 @@ async function submitFound() {
 function checkHotelCode() { if (hotelCode.value.trim().toLocaleLowerCase('ru-RU') !== 'слово') { hotelCodeNote.value = 'Проверь кодовое слово ещё раз.'; return }; hotelCodeOpen.value = false; setScreen('next') }
 function checkSafeCode() { if (safeCode.value.trim() !== '518346') { safeCodeNote.value = 'Почти. Вернись к числам, которые уже встретились тебе в квесте.'; return }; safeCodeNote.value = 'Верно. Сейф открыт — следующая подсказка уже внутри. ✦' }
 const SCREEN_ORDER: Screen[] = ['intro', 'question', 'clue', 'letter', 'arrival', 'next']
+type PolaroidShot = {
+  src: string
+  focal: string
+  style: Record<string, string>
+}
+const PHOTO_POOL: Record<Screen, string[]> = {
+  intro: ['carousel.jpg', 'look.jpg', 'kiss.jpg'],
+  question: ['mountains.jpg', 'tea.jpg', 'look.jpg'],
+  clue: ['cafe.jpg', 'kiss.jpg', 'fountain.jpg'],
+  letter: ['ruzhik.jpg', 'look.jpg', 'tea.jpg'],
+  arrival: ['fountain.jpg', 'carousel.jpg', 'cafe.jpg'],
+  next: ['kiss.jpg', 'cafe.jpg', 'mountains.jpg'],
+}
 const photoBase = useRuntimeConfig().app.baseURL
 const photo = (name: string) => `${photoBase}us/${name}`.replace(/([^:])\/{2,}/g, '$1/')
-const photoSet = computed(() => ({
-  intro: [photo('carousel.jpg'), photo('look.jpg')],
-  question: [photo('mountains.jpg'), photo('tea.jpg')],
-  clue: [photo('cafe.jpg'), photo('kiss.jpg')],
-  letter: [photo('ruzhik.jpg'), photo('look.jpg')],
-  arrival: [photo('fountain.jpg'), photo('carousel.jpg')],
-  next: [photo('kiss.jpg'), photo('cafe.jpg')],
-}[screen.value]))
+function seededRandom(seed: string) {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  let a = h >>> 0
+  return () => {
+    a = (Math.imul(a, 1664525) + 1013904223) >>> 0
+    return a / 4294967296
+  }
+}
+function shuffleInPlace<T>(items: T[], rand: () => number) {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]]
+  }
+  return items
+}
+function makeShot(src: string, rotate: number, left: number, top: number, width: number, z: number, rand: () => number): PolaroidShot {
+  const focals = ['center 18%', 'center 28%', 'center 38%', '52% 22%', '46% 32%']
+  return {
+    src: photo(src),
+    focal: focals[Math.floor(rand() * focals.length)],
+    style: {
+      '--r': `${rotate.toFixed(1)}deg`,
+      '--x': `${left.toFixed(1)}%`,
+      '--y': `${top.toFixed(1)}px`,
+      '--w': `${width.toFixed(1)}%`,
+      '--z': String(z),
+    },
+  }
+}
+const PHOTO_LAYOUTS: Record<Screen, { count: 1 | 2; order: 0 | 4; place: 'left' | 'right' | 'center' | 'stagger-a' | 'stagger-b' }> = {
+  intro: { count: 2, order: 0, place: 'stagger-a' },
+  question: { count: 1, order: 0, place: 'center' },
+  clue: { count: 2, order: 4, place: 'stagger-b' },
+  letter: { count: 1, order: 4, place: 'center' },
+  arrival: { count: 2, order: 0, place: 'stagger-b' },
+  next: { count: 2, order: 4, place: 'stagger-a' },
+}
+const photoLayout = computed(() => {
+  const rand = seededRandom(`polaroid:${screen.value}`)
+  const pool = shuffleInPlace([...PHOTO_POOL[screen.value]], rand)
+  const { count, order, place } = PHOTO_LAYOUTS[screen.value]
+  const files = pool.slice(0, count)
+  const jitter = (n: number) => (rand() - 0.5) * n
+  if (count === 1) {
+    const dir = place === 'left' ? -1 : 1
+    const rotate = dir * (3.2 + rand() * 2.4)
+    const shots = place === 'left'
+      ? [makeShot(files[0]!, rotate, 10 + jitter(6), 8 + jitter(4), 58 + jitter(3), 2, rand)]
+      : place === 'right'
+        ? [makeShot(files[0]!, rotate, 28 + jitter(6), 8 + jitter(4), 58 + jitter(3), 2, rand)]
+        : [makeShot(files[0]!, rotate, 20 + jitter(6), 6 + jitter(4), 60 + jitter(2), 2, rand)]
+    return { shots, order }
+  }
+  const leftHigh = place === 'stagger-a'
+  return {
+    order,
+    shots: [
+      makeShot(files[0]!, -5.5 + jitter(3), 2 + jitter(6), leftHigh ? 4 + jitter(4) : 16 + jitter(6), 42 + jitter(4), leftHigh ? 3 : 1, rand),
+      makeShot(files[1]!, 4.8 + jitter(3), 40 + jitter(6), leftHigh ? 16 + jitter(6) : 4 + jitter(4), 40 + jitter(4), leftHigh ? 1 : 3, rand),
+    ],
+  }
+})
 function goBack() {
   if (hotelCodeOpen.value) { hotelCodeOpen.value = false; return }
   if (hintOpen.value) { hintOpen.value = false; return }
@@ -129,16 +200,24 @@ onMounted(() => {
       <span class="back-spacer" />
     </header>
 
-    <div class="photos">
-      <figure class="polaroid tilt-a">
-        <img :src="photoSet[0]" alt="">
-      </figure>
-      <figure class="polaroid tilt-b">
-        <img :src="photoSet[1]" alt="">
-      </figure>
-    </div>
+    <section
+      class="screen"
+      :key="screen"
+      :class="{ 'photos-mid': photoLayout.order === 4, 'photos-solo': photoLayout.shots.length === 1 }"
+      :style="{ '--photo-order': photoLayout.order }"
+    >
+      <div class="photos" :class="{ 'is-solo': photoLayout.shots.length === 1 }" aria-hidden="true">
+        <figure
+          v-for="(item, i) in photoLayout.shots"
+          :key="`${screen}-${i}`"
+          class="polaroid"
+          :style="item.style"
+        >
+          <img :src="item.src" alt="" :style="{ objectPosition: item.focal }">
+        </figure>
+      </div>
 
-    <section v-if="screen === 'intro'" class="screen">
+      <template v-if="screen === 'intro'">
       <p class="kicker">личный квест</p>
       <h1 class="title">Найди меня.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -150,9 +229,9 @@ onMounted(() => {
           <button type="button" class="btn-ghost btn" @click="choose('info')">Я ничего не поняла</button>
         </div>
       </article>
-    </section>
+      </template>
 
-    <section v-else-if="screen === 'question'" class="screen">
+      <template v-else-if="screen === 'question'">
       <p class="kicker">этап 01 · точка на карте</p>
       <h1 class="title">Где я?</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -165,9 +244,9 @@ onMounted(() => {
         </label>
         <p class="note" role="status">{{ answerNote }}</p>
       </article>
-    </section>
+      </template>
 
-    <section v-else-if="screen === 'clue'" class="screen">
+      <template v-else-if="screen === 'clue'">
       <p class="kicker">этап 01 пройден</p>
       <h1 class="title">Ты на верном пути.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -183,9 +262,9 @@ onMounted(() => {
         <p class="note" role="status">{{ foundNote }}</p>
         <button type="button" class="btn-ghost btn" @click="hintOpen = true">Подсказка</button>
       </article>
-    </section>
+      </template>
 
-    <section v-else-if="screen === 'letter'" class="screen">
+      <template v-else-if="screen === 'letter'">
       <p class="kicker">письмо № 02</p>
       <h1 class="title">Маршрут начинается.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -197,9 +276,9 @@ onMounted(() => {
         <p class="sign">Твой маршрут</p>
         <button type="button" class="btn" @click="setScreen('arrival')">Я доехала</button>
       </article>
-    </section>
+      </template>
 
-    <section v-else-if="screen === 'arrival'" class="screen">
+      <template v-else-if="screen === 'arrival'">
       <p class="kicker">добро пожаловать в сочи</p>
       <h1 class="title">Твоя новая точка.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -211,9 +290,9 @@ onMounted(() => {
         <a class="btn-ghost btn" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель</a>
         <button type="button" class="btn" @click="hotelCodeOpen = true">Я в отеле</button>
       </article>
-    </section>
+      </template>
 
-    <section v-else class="screen">
+      <template v-else>
       <p class="kicker">секретная точка</p>
       <h1 class="title">Тише. Сейф рядом.</h1>
       <div class="ornament" aria-hidden="true">✦</div>
@@ -232,6 +311,7 @@ onMounted(() => {
         </label>
         <p class="note" role="status">{{ safeCodeNote }}</p>
       </article>
+      </template>
     </section>
 
     <div class="modal" :class="{ show: hintOpen }" :aria-hidden="!hintOpen">

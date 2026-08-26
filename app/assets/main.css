@@ -85,7 +85,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--gold-soft), var(--gold));
+  background: linear-gradient(90deg, #ffc5d8, var(--pink-deep));
   transition: width 220ms ease;
 }
 
@@ -95,7 +95,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  gap: 14px;
+  gap: 10px;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -103,13 +103,19 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   animation: screenIn 320ms ease both;
 }
 .screen > * { flex-shrink: 0 }
+.screen .photos { order: var(--photo-order, 0) }
+.screen .kicker { order: 1 }
+.screen .title { order: 2 }
+.screen .ornament { order: 3 }
+.screen .attempts { order: 5 }
+.screen .card { order: 6 }
 @keyframes screenIn {
   from { opacity: 0; transform: translateY(10px) }
   to { opacity: 1; transform: none }
 }
 
 .kicker {
-  margin: 6px 0 0;
+  margin: 0;
   color: var(--ink);
   font-size: 11px;
   font-weight: 700;
@@ -131,51 +137,62 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation }
   text-wrap: balance;
 }
 .photos {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 14px;
+  position: relative;
+  z-index: 2;
+  height: 176px;
+  margin: 0 -8px 0;
   flex: 0 0 auto;
-  padding: 2px 8px 8px;
+  pointer-events: none;
 }
+.photos.is-solo { height: 220px; }
+.photos.is-solo .polaroid { max-width: 200px; }
+.screen.photos-mid .photos { margin-bottom: -28px; }
+.screen.photos-mid .card { padding-top: 36px; }
 .polaroid {
-  width: 42%;
-  max-width: 168px;
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  max-width: 148px;
+  z-index: var(--z);
   margin: 0;
-  padding: 8px 8px 18px;
+  padding: 7px 7px 18px;
   background: var(--snow);
   border-radius: 6px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .9),
-    0 12px 28px rgba(194, 93, 134, .22);
+    0 10px 24px rgba(194, 93, 134, .26);
+  transform: rotate(var(--r));
+  transform-origin: 50% 70%;
 }
 .polaroid img {
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-  object-position: center 20%;
+  object-position: center 24%;
   border-radius: 3px;
 }
-.tilt-a { transform: rotate(-7deg); }
-.tilt-b { transform: rotate(6deg); margin-bottom: 6px; }
 
 .ornament {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: var(--gold);
-  font-size: 12px;
+  color: var(--ink);
+  font-size: 11px;
+  opacity: .35;
 }
 .ornament::before,
 .ornament::after {
   content: "";
   width: 36px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  background: linear-gradient(90deg, transparent, var(--ink), transparent);
 }
 
 .card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   padding: 22px 20px 20px;
   border: 1px solid rgba(255, 255, 255, .7);
@@ -302,10 +319,11 @@ a.btn { text-decoration: none }
 .attempts {
   display: block;
   text-align: center;
-  color: var(--gold);
+  color: var(--ink);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: .08em;
+  opacity: .72;
 }
 .cipher {
   margin: 4px 0 2px;
@@ -345,11 +363,11 @@ a.btn { text-decoration: none }
   font-weight: 600;
   line-height: 1.45;
 }
-.list li::marker { color: var(--gold) }
+.list li::marker { color: var(--pink-deep) }
 .sign {
   margin-top: 8px;
   padding-top: 12px;
-  border-top: 1px solid rgba(212, 176, 106, .45);
+  border-top: 1px solid rgba(226, 122, 163, .35);
   color: var(--pink-deep);
   font-family: var(--font-display);
   font-size: 18px;
@@ -427,8 +445,10 @@ a.btn { text-decoration: none }
   .title { font-size: clamp(30px, 9vw, 40px) }
   .card { padding: 18px 16px }
   .btn { min-height: 48px }
-  .polaroid { max-width: 124px; padding: 6px 6px 14px }
-  .photos { gap: 10px; padding-bottom: 4px }
+  .photos { height: 148px }
+  .photos.is-solo { height: 188px }
+  .polaroid { max-width: 128px; padding: 6px 6px 14px }
+  .photos.is-solo .polaroid { max-width: 176px }
 }
 @media (min-width: 768px) {
   body { background: #f3c2d4 }
