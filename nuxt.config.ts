@@ -8,7 +8,12 @@ export default defineNuxtConfig({
   css: ['~/assets/main.css', '~/assets/palette.css'],
   runtimeConfig: {
     botToken: '', webAppUrl: '',
-    resendApiKey: '', emailFrom: '', questRecipientEmail: '', arrivalAt: '', hotelAddress: '', bookingName: '',
+    resendApiKey: '',
+    emailFrom: '',
+    questRecipientEmail: '',
+    arrivalAt: '2026-08-29T01:00:00+03:00',
+    hotelAddress: '8Авеню by Provence, Сочи, улица Орджоникидзе, 8а',
+    bookingName: 'Екатерина Авраимова',
   },
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',

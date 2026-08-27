@@ -13,7 +13,7 @@ setGlobalDispatcher(new Agent({ connect: { timeout: 30000 } }))
 
 const token = process.env.NUXT_BOT_TOKEN
 const webAppBase = (process.env.NUXT_WEB_APP_URL || 'https://trashhh14.github.io/find-me-quest/').replace(/\/?$/, '/')
-const webAppUrl = `${webAppBase}?v=202608263`
+const webAppUrl = `${webAppBase}?v=202608274`
 const invitationFile = fileURLToPath(new URL('./public/assets/quest-invitation.png', import.meta.url))
 
 if (!token) {

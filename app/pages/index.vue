@@ -126,7 +126,10 @@ const PHOTO_POOL: Record<Screen, string[]> = {
   finale: ['look.jpg', 'kiss.jpg', 'carousel.jpg'],
 }
 const photoBase = useRuntimeConfig().app.baseURL
-const photo = (name: string) => `${photoBase}us/${name}`.replace(/([^:])\/{2,}/g, '$1/')
+const assetUrl = (path: string) => `${photoBase}${path}`.replace(/([^:])\/{2,}/g, '$1/')
+const photo = (name: string) => assetUrl(`us/${name}`)
+const ticketHref = assetUrl('assets/sochi-ticket.pdf')
+const voucherHref = assetUrl('assets/sochi-hotel-voucher.pdf')
 function seededRandom(seed: string) {
   let h = 2166136261
   for (let i = 0; i < seed.length; i++) {
@@ -319,11 +322,14 @@ onUnmounted(() => {
       <div class="ornament" aria-hidden="true">✦</div>
       <article class="card">
         <p class="card-title">Привет, мышка!</p>
-        <p>Если ты это читаешь, значит, ты уже знаешь, куда тебе предстоит ехать. Хочу предупредить, много одежды не бери, ведь в Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя — эмоции будут невероятные.</p>
-        <p>К сожалению, Ружика я не смог увезти, поэтому тебе нужно самой отвезти его на передержку. Времени на сборы не так много: бери всё самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
-        <p>Езжай, а всю дальнейшую информацию ты получишь по приезде.</p>
+        <p>Если ты это читаешь — значит, уже знаешь, куда тебе предстоит ехать.</p>
+        <p>Хочу предупредить: много одежды не бери. В Сочи ты едешь, к сожалению, ненадолго. Но уверяю тебя: эмоции будут невероятными.</p>
+        <p>Ружика я, к сожалению, увезти не смог, поэтому тебе нужно самой передать его Софии — она заедет за ним в 11:00.</p>
+        <p>Времени на сборы немного. Бери только самое необходимое, красивое нижнее бельё и пару красивых образов.</p>
+        <p>Езжай. Всю дальнейшую информацию получишь по приезде.</p>
         <p class="sign">Твой маршрут</p>
-        <button type="button" class="btn" @click="setScreen('arrival')">Я доехала</button>
+        <a class="btn" :href="ticketHref" download="Электронный билет.pdf" target="_blank" rel="noopener">Скачать электронный билет</a>
+        <button type="button" class="btn btn-ghost" @click="setScreen('arrival')">Я доехала</button>
       </article>
       </template>
 
@@ -364,6 +370,7 @@ onUnmounted(() => {
         <p class="hotel-name">8Авеню by Provence</p>
         <p class="hotel-address">Сочи, улица Орджоникидзе, 8а</p>
         <p>Приезжай, располагайся — там тебя ждёт следующая подсказка.</p>
+        <a class="btn" :href="voucherHref" download="Билет.pdf" target="_blank" rel="noopener">Скачать билет</a>
         <a class="btn-ghost btn" href="https://otello.ru/hotel/70000001075315139?checkin=2026-08-28&amp;checkout=2026-08-30&amp;guest_groups=%5B%7B%22adults%22%3A2%7D%5D" target="_blank" rel="noopener">Открыть отель</a>
         <button type="button" class="btn" @click="openHotelGate">Я в отеле</button>
       </article>
@@ -405,7 +412,7 @@ onUnmounted(() => {
       <article class="card">
         <p>В комнате есть сейф. Найди его — следующая подсказка уже внутри.</p>
         <p class="meta">код</p>
-        <p class="card-title">Код — день, когда всё началось.</p>
+        <p class="card-title">Код — день и месяц, когда всё началось)))</p>
         <label class="field">
           <input v-model="safeCode" type="text" inputmode="numeric" maxlength="10" placeholder="Код сейфа" autocomplete="one-time-code" @focus="scrollField" @keyup.enter="checkSafeCode">
           <button type="button" aria-label="Проверить код" @click="checkSafeCode">→</button>
